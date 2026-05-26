@@ -1,0 +1,222 @@
+/* =========================================================================
+   Orange Design System — Colors & Type
+   Sourced from Orange Brand Guidelines + Orange Web UI Kit (Boosted)
+   =========================================================================
+   UI typography is set in HelvNeueOrange (the licensed Orange webfont),
+   with Helvetica Neue → Helvetica → Arial → native OS sans-serif as a
+   "native font stack" fallback (Boosted convention, per Reboot docs).
+   HelvNeueOrange itself is licensed-only; we do not ship the file here.
+   Drop it into assets/fonts/ when you have it and the stack picks it up.
+   ========================================================================= */
+
+:root {
+  /* ---------- Core brand ---------- */
+  --color-white:            #ffffff;
+  --color-black:            #000000;
+  --color-orange-1:         #ff7900; /* Digital orange 1 — primary */
+  --color-orange-2:         #f16e00; /* Digital orange 2 — hover/print */
+
+  /* ---------- Functional (used to convey status) ---------- */
+  --color-success:          #32c832; /* Green */
+  --color-info:             #527edb; /* Blue */
+  --color-warning:          #ffcc00; /* Yellow */
+  --color-error:            #cd3c14; /* Red */
+
+  /* ---------- Supporting (illustrative / decorative) ---------- */
+  --color-support-blue:     #4bb4e6;
+  --color-support-yellow:   #ffd200;
+  --color-support-green:    #50be87;
+  --color-support-purple:   #a885d8;
+  --color-support-pink:     #ffb4e6;
+
+  /* ---------- Greys (named by 100..900 ramp, per Boosted) ---------- */
+  --color-grey-100:         #fafafa;
+  --color-grey-200:         #f6f6f6;
+  --color-grey-300:         #eeeeee;
+  --color-grey-400:         #dddddd;
+  --color-grey-500:         #cccccc;
+  --color-grey-600:         #999999;
+  --color-grey-700:         #666666;
+  --color-grey-800:         #595959;
+  --color-grey-900:         #333333;
+
+  /* ---------- Semantic surfaces & text ---------- */
+  --bg:                     var(--color-white);
+  --bg-subtle:              var(--color-grey-100);
+  --bg-muted:               var(--color-grey-200);
+  --bg-inverse:             var(--color-black);
+
+  --fg:                     var(--color-black);
+  --fg-muted:               var(--color-grey-700);
+  --fg-subtle:              var(--color-grey-600);
+  --fg-on-orange:           var(--color-white);
+  --fg-on-dark:             var(--color-white);
+  --fg-link:                var(--color-black);          /* Orange uses underlined black links on white */
+  --fg-link-hover:          var(--color-orange-1);
+
+  --border:                 var(--color-grey-400);
+  --border-strong:          var(--color-grey-500);
+  --border-on-dark:         rgba(255,255,255,0.24);
+
+  --focus-ring:             var(--color-orange-1);
+
+  /* ---------- Typography ----------
+     Full Boosted native font stack: HelvNeueOrange (Orange webfont) →
+     Helvetica Neue → websafe → -apple-system / Blink → Segoe UI / Roboto /
+     Liberation Sans → generic → emoji. */
+  --font-sans:              HelvNeueOrange, "Helvetica Neue", Helvetica, Arial,
+                            -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                            "Liberation Sans", sans-serif,
+                            "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-mono:              SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  /* Boosted type scale (px → rem at 16px base) */
+  --fs-display:             3.5rem;   /* 56 */
+  --fs-h1:                  2.5rem;   /* 40 */
+  --fs-h2:                  2rem;     /* 32 */
+  --fs-h3:                  1.5rem;   /* 24 */
+  --fs-h4:                  1.25rem;  /* 20 */
+  --fs-h5:                  1.125rem; /* 18 */
+  --fs-h6:                  1rem;     /* 16 */
+  --fs-body-lg:             1.125rem; /* 18 */
+  --fs-body:                1rem;     /* 16 */
+  --fs-body-sm:             0.875rem; /* 14 */
+  --fs-caption:             0.75rem;  /* 12 */
+
+  --fw-light:               300;
+  --fw-regular:             400;
+  --fw-medium:              500;
+  --fw-bold:                700;
+  --fw-black:               900;
+
+  --lh-tight:               1.1;
+  --lh-snug:                1.25;
+  --lh-normal:              1.5;
+  --lh-loose:               1.7;
+
+  --tracking-tight:         -0.02em;
+  --tracking-normal:        0;
+  --tracking-wide:          0.04em;
+
+  /* ---------- Spacing (4px base, Boosted-aligned) ---------- */
+  --space-0:                0;
+  --space-1:                4px;
+  --space-2:                8px;
+  --space-3:                12px;
+  --space-4:                16px;
+  --space-5:                24px;
+  --space-6:                32px;
+  --space-7:                48px;
+  --space-8:                64px;
+  --space-9:                96px;
+  --space-10:               128px;
+
+  /* ---------- Radii — Orange is square-first. Radii only on small affordances ---------- */
+  --radius-0:               0;
+  --radius-sm:              2px;
+  --radius-md:              4px;
+  --radius-pill:            999px;
+
+  /* ---------- Elevation — Boosted is mostly flat. Shadows used sparingly ---------- */
+  --shadow-none:            none;
+  --shadow-sm:              0 1px 2px rgba(0,0,0,0.08);
+  --shadow-md:              0 2px 8px rgba(0,0,0,0.10);
+  --shadow-lg:              0 8px 24px rgba(0,0,0,0.12);
+  --shadow-focus:           0 0 0 2px var(--color-white), 0 0 0 4px var(--color-orange-1);
+
+  /* ---------- Motion ---------- */
+  --easing-standard:        cubic-bezier(0.4, 0, 0.2, 1);
+  --easing-accelerate:      cubic-bezier(0.4, 0, 1, 1);
+  --easing-decelerate:      cubic-bezier(0, 0, 0.2, 1);
+  --dur-fast:               120ms;
+  --dur-base:               200ms;
+  --dur-slow:               320ms;
+
+  /* ---------- Layout ---------- */
+  --container-max:          1280px;
+  --grid-gutter:            24px;
+  --header-h:               64px;
+}
+
+/* =========================================================================
+   Semantic element styles — apply these directly OR copy values into your
+   component CSS. Keep colour locked to background (Boosted rule).
+   ========================================================================= */
+
+html, body { background: var(--bg); color: var(--fg); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+
+.h-display, h1.display {
+  font-size: var(--fs-display);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tight);
+}
+/* Reboot rule: bottom-only margins. Boosted spec: headings 1.25rem, p 1rem. */
+h1, .h1 { font-size: var(--fs-h1); font-weight: var(--fw-bold); line-height: var(--lh-tight); letter-spacing: var(--tracking-tight); margin: 0 0 1.25rem; }
+h2, .h2 { font-size: var(--fs-h2); font-weight: var(--fw-bold); line-height: var(--lh-snug);  letter-spacing: var(--tracking-tight); margin: 0 0 1.25rem; }
+h3, .h3 { font-size: var(--fs-h3); font-weight: var(--fw-bold); line-height: var(--lh-snug);  margin: 0 0 1.25rem; }
+h4, .h4 { font-size: var(--fs-h4); font-weight: var(--fw-bold); line-height: var(--lh-snug);  margin: 0 0 1.25rem; }
+h5, .h5 { font-size: var(--fs-h5); font-weight: var(--fw-bold); line-height: var(--lh-normal); margin: 0 0 1.25rem; }
+h6, .h6 { font-size: var(--fs-h6); font-weight: var(--fw-bold); line-height: var(--lh-normal); text-transform: uppercase; letter-spacing: var(--tracking-wide); margin: 0 0 1.25rem; }
+
+p, .p { font-size: var(--fs-body); line-height: var(--lh-normal); color: var(--fg); margin: 0 0 1rem; }
+
+/* Lists — Boosted default list-style is `square`. Where ::marker color is
+   unsupported, use .list-square (an ::before-based equivalent) so the
+   bullet color is locked to brand. */
+ul, ol, dl { margin: 0 0 1rem; padding-left: 1.5rem; }
+ul { list-style-type: square; }
+ul ul, ol ol, ul ol, ol ul { margin-bottom: 0; }
+ul::marker, ul li::marker { color: var(--color-orange-1); }
+
+ul.list-square { list-style: none; padding-left: 0; }
+ul.list-square > li { position: relative; padding-left: 1.5rem; }
+ul.list-square > li::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0.55em;
+  width: 0.5em; height: 0.5em;
+  background: var(--color-orange-1);
+}
+
+dt { font-weight: var(--fw-bold); }
+dd { margin-left: 0; margin-bottom: 0.5rem; }
+
+/* Pre/code — Reboot uses rem margins */
+pre { margin: 0 0 1rem; font-family: var(--font-mono); font-size: 0.875rem; }
+
+/* Reboot: address, blockquote */
+address { font-style: normal; line-height: inherit; margin-bottom: 1rem; }
+blockquote { margin: 0 0 1rem; }
+
+/* HTML5 hidden — Boosted ships !important here */
+[hidden] { display: none !important; }
+.invisible { visibility: hidden; }
+.lead { font-size: var(--fs-body-lg); line-height: var(--lh-normal); }
+small, .caption { font-size: var(--fs-caption); color: var(--fg-muted); }
+
+a, .a {
+  color: var(--fg-link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+  transition: color var(--dur-fast) var(--easing-standard);
+}
+a:hover, .a:hover { color: var(--fg-link-hover); }
+a:focus-visible { outline: none; box-shadow: var(--shadow-focus); border-radius: var(--radius-sm); }
+
+code, kbd, samp, pre { font-family: var(--font-mono); font-size: 0.9375em; }
+
+/* ---------- Bg / Fg utility pairs (Boosted-style "locked" pairs) ---------- */
+.bg-primary    { background: var(--color-orange-1); color: var(--color-white); }
+.bg-secondary  { background: var(--color-black);    color: var(--color-white); }
+.bg-supporting { background: var(--color-grey-200); color: var(--color-black); }
+.bg-success    { background: var(--color-success);  color: var(--color-white); }
+.bg-info       { background: var(--color-info);     color: var(--color-white); }
+.bg-warning    { background: var(--color-warning);  color: var(--color-black); }
+.bg-danger     { background: var(--color-error);    color: var(--color-white); }
+
+.text-primary  { color: var(--color-orange-1); }
+.text-success  { color: var(--color-success); }
+.text-danger   { color: var(--color-error); }
+.text-muted    { color: var(--fg-muted); }
