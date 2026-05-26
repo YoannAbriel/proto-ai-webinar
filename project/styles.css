@@ -737,15 +737,15 @@ button { font-family: inherit; }
 
 /* ===== POP detail drill-down panel ===== */
 .pop-overlay {
-  position: fixed; inset: 0;
+  position: fixed; inset: var(--topbar-h) 0 0 0;
   background: rgba(0, 0, 0, 0.35);
   z-index: 90;
   animation: fade-in 180ms var(--easing-standard) both;
 }
 .pop-panel {
-  position: fixed; top: 0; right: 0;
+  position: fixed; top: var(--topbar-h); right: 0;
   width: min(400px, 92vw);
-  height: 100vh;
+  height: calc(100vh - var(--topbar-h));
   background: #fff;
   z-index: 91;
   box-shadow: -16px 0 32px rgba(0, 0, 0, 0.18);
