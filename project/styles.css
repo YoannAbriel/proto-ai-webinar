@@ -22,6 +22,8 @@
 *, *::before, *::after { box-sizing: border-box; }
 html, body {
   margin: 0;
+  height: 100%;
+  overflow: hidden; /* scroll lives in .main only */
   font-family: var(--font-sans);
   color: var(--ink);
   background: var(--soft-bg);
@@ -32,7 +34,7 @@ button { font-family: inherit; }
 
 /* App shell layout */
 .app {
-  min-height: 100vh;
+  height: 100vh; /* fixed viewport height — no body scroll */
   display: grid;
   grid-template-columns: var(--sidebar-w) 1fr;
   grid-template-rows: var(--topbar-h) 1fr var(--footer-h);
@@ -53,7 +55,7 @@ button { font-family: inherit; }
   padding: 0 24px;
   background: #fff;
   border-bottom: 1px solid var(--panel-border);
-  position: sticky; top: 0; z-index: 50;
+  z-index: 50; /* grid keeps it fixed — no sticky needed */
 }
 .brand-lockup {
   display: flex; align-items: center; gap: 12px;
@@ -128,9 +130,7 @@ button { font-family: inherit; }
   background: #fff;
   border-right: 1px solid var(--panel-border);
   display: flex; flex-direction: column;
-  position: sticky; top: var(--topbar-h);
-  height: calc(100vh - var(--topbar-h));
-  overflow: hidden;
+  overflow: hidden; /* grid row handles height — no sticky needed */
   z-index: 5;
 }
 .sidebar .nav { padding: 6px 0 8px; flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
@@ -260,6 +260,8 @@ button { font-family: inherit; }
   padding: var(--content-pad);
   min-width: 0;
   max-width: 100%;
+  overflow-y: auto; /* only .main scrolls, not the body */
+  overflow-x: hidden;
 }
 .footer {
   grid-area: footer;

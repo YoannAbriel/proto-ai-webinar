@@ -52,7 +52,7 @@ const CatalogueScreen = () => {
       </div>
 
       {/* Filters */}
-      <div className="panel" style={{ marginBottom: 24, position: "sticky", top: 56, zIndex: 10 }}>
+      <div className="panel" style={{ marginBottom: 24, position: "sticky", top: 0, zIndex: 10 }}>
         <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 12, borderBottom: "1px solid var(--line)" }}>
           <div style={{ position: "relative" }}>
             <input

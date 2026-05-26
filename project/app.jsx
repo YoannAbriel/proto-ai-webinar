@@ -31,7 +31,7 @@ const App = () => {
     if (!SCREENS[next]) return;
     setScreen(next);
     window.history.replaceState(null, "", `#/${next}`);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    document.querySelector(".main")?.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
   // Hotkeys: ←/→ to navigate, 1-6 for direct jump (silent, no UI)
