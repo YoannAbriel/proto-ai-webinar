@@ -373,11 +373,22 @@ const LiveTestBlock = ({ phase }) => {
         )}
       </div>
 
-      <div ref={scrollRef} style={{ flex: 1, padding: 16, height: 200, overflowY: "auto", background: "var(--color-grey-100)", display: "flex", flexDirection: "column", gap: 10 }}>
+      <div ref={scrollRef} style={{ flex: 1, padding: 16, minHeight: 200, overflowY: "auto", background: "var(--color-grey-100)", display: "flex", flexDirection: "column", gap: 10 }}>
         {messages.length === 0 ? (
-          <div style={{ textAlign: "center", color: "var(--ink-faint)", margin: "auto", fontSize: 12 }}>
-            <Icon name="flask" size={28} />
-            <div style={{ marginTop: 6 }}>{phase === "live" ? "Ask a question to test the endpoint live" : "Waiting for startup…"}</div>
+          <div style={{ margin: "auto", textAlign: "center", color: "var(--ink-faint)", fontSize: 12 }}>
+            <Icon name="flask" size={24} />
+            <div style={{ marginTop: 6, marginBottom: 14 }}>
+              {phase === "live" ? "Ask a question to test the endpoint live" : "Waiting for startup…"}
+            </div>
+            {phase === "live" && (
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "center" }}>
+                {["Hello", "How edge routing works ?"].map(q => (
+                  <button key={q} onClick={() => fakeSend(q)} className="chip chip-outline" style={{ cursor: "pointer", fontFamily: "inherit", border: "1px solid var(--color-grey-400)", background: "#fff", color: "#000" }}>
+                    {q}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         ) : (
           messages.map((m, i) => (
@@ -398,16 +409,6 @@ const LiveTestBlock = ({ phase }) => {
           ))
         )}
       </div>
-
-      {phase === "live" && messages.length === 0 && (
-        <div style={{ padding: "0 16px 8px", display: "flex", gap: 6, flexWrap: "wrap" }}>
-          {["Hello", "How edge routing works ?"].map(q => (
-            <button key={q} onClick={() => fakeSend(q)} className="chip chip-outline" style={{ cursor: "pointer", fontFamily: "inherit", border: "1px solid var(--color-grey-500)", background: "#fff" }}>
-              {q}
-            </button>
-          ))}
-        </div>
-      )}
 
       <div style={{ padding: 12, borderTop: "1px solid var(--line)", display: "flex", gap: 8 }}>
         <input
