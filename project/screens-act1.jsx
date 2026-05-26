@@ -358,7 +358,7 @@ const SovereignToggle = ({ locked }) => (
     <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
       <EUFlag size={14} />
       <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 4 }}>Sovereignty stricte</div>
+        <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 4 }}>Strict sovereignty</div>
         <div style={{ fontSize: 11, color: "var(--ink-soft)", lineHeight: 1.4 }}>
           Zero data flow outside EU. AI Act & GDPR compliant.
         </div>

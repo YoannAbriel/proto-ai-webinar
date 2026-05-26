@@ -9,16 +9,16 @@ const POPS = [
   { id: "lyon",      city: "Lyon",      country: "FR", lon: 4.85,  lat: 45.76, req: "3.2k",  lat_ms: 12, labelDx: -8,  labelAnchor: "end", labelDy: 4 },
   { id: "marseille", city: "Marseille", country: "FR", lon: 5.37,  lat: 43.3,  req: "2.1k",  lat_ms: 14, labelDx: -8,  labelAnchor: "end", labelDy: 4 },
   { id: "madrid",    city: "Madrid",    country: "ES", lon: -3.7,  lat: 40.4,  req: "2.8k",  lat_ms: 18, labelDy: 14 },
-  { id: "barcelona", city: "Barcelone", country: "ES", lon: 2.17,  lat: 41.4,  req: "1.9k",  lat_ms: 16, labelDy: 14 },
-  { id: "lisbon",    city: "Lisbonne",  country: "PT", lon: -9.14, lat: 38.7,  req: "1.1k",  lat_ms: 22, labelDx: -8, labelAnchor: "end" },
+  { id: "barcelona", city: "Barcelona", country: "ES", lon: 2.17,  lat: 41.4,  req: "1.9k",  lat_ms: 16, labelDy: 14 },
+  { id: "lisbon",    city: "Lisbon",    country: "PT", lon: -9.14, lat: 38.7,  req: "1.1k",  lat_ms: 22, labelDx: -8, labelAnchor: "end" },
   { id: "milan",     city: "Milan",     country: "IT", lon: 9.19,  lat: 45.46, req: "2.4k",  lat_ms: 15, labelDy: 14 },
   { id: "rome",      city: "Rome",      country: "IT", lon: 12.5,  lat: 41.9,  req: "1.7k",  lat_ms: 19, labelDy: 14 },
-  { id: "brussels",  city: "Bruxelles", country: "BE", lon: 4.35,  lat: 50.85, req: "1.5k",  lat_ms: 8,  labelDx: -8, labelAnchor: "end", labelDy: -6 },
+  { id: "brussels",  city: "Brussels",  country: "BE", lon: 4.35,  lat: 50.85, req: "1.5k",  lat_ms: 8,  labelDx: -8, labelAnchor: "end", labelDy: -6 },
   { id: "amsterdam", city: "Amsterdam", country: "NL", lon: 4.9,   lat: 52.37, req: "2.7k",  lat_ms: 10, labelDx: -8, labelAnchor: "end", labelDy: -4 },
-  { id: "frankfurt", city: "Francfort", country: "DE", lon: 8.68,  lat: 50.11, req: "3.5k",  lat_ms: 9,  labelDy: -4 },
+  { id: "frankfurt", city: "Frankfurt", country: "DE", lon: 8.68,  lat: 50.11, req: "3.5k",  lat_ms: 9,  labelDy: -4 },
   { id: "munich",    city: "Munich",    country: "DE", lon: 11.58, lat: 48.14, req: "2.2k",  lat_ms: 13, labelDy: 14 },
   { id: "berlin",    city: "Berlin",    country: "DE", lon: 13.4,  lat: 52.52, req: "2.9k",  lat_ms: 14, labelDy: -6 },
-  { id: "warsaw",    city: "Varsovie",  country: "PL", lon: 21.0,  lat: 52.23, req: "1.3k",  lat_ms: 21 },
+  { id: "warsaw",    city: "Warsaw",    country: "PL", lon: 21.0,  lat: 52.23, req: "1.3k",  lat_ms: 21 },
 ];
 
 // User clusters — represent end-users near each POP. Coordinates are lon/lat;
@@ -635,7 +635,7 @@ const HowItWorks = () => {
   const steps = [
     {
       n: "01",
-      title: "Model déployé à Paris",
+      title: "Model deployed in Paris",
       sub: "Sovereign bare metal",
       desc: "A single inference instance on a Gcore H100 GPU in France. The model never leaves France.",
       icon: "server",

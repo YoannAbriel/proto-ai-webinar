@@ -32,7 +32,7 @@ const DeployScreen = () => {
         <div>
           <div className="kicker">Act 2 · Configuration</div>
           <h1>Deploy Mistral-Small-3-24B</h1>
-          <p className="subtitle">Trois étapes pour passer en production. Sovereignty pré-câblée, scaling et edge en option.</p>
+          <p className="subtitle">Three steps to production. Sovereignty pre-wired, scaling and edge optional.</p>
         </div>
         <button className="btn btn-primary btn-lg" disabled={!canLaunch} onClick={handleLaunch}>
           <Icon name="play" size={14} />
@@ -97,10 +97,10 @@ const StepInfra = ({ config, setConfig, onNext }) => {
   const REGION_POPS = [
     { id: "paris",     city: "Paris",     country: "FR", lon: 2.35,  lat: 48.86, hub: true },
     { id: "amsterdam", city: "Amsterdam", country: "NL", lon: 4.9,   lat: 52.37 },
-    { id: "frankfurt", city: "Francfort", country: "DE", lon: 8.68,  lat: 50.11 },
+    { id: "frankfurt", city: "Frankfurt", country: "DE", lon: 8.68,  lat: 50.11 },
     { id: "madrid",    city: "Madrid",    country: "ES", lon: -3.7,  lat: 40.4 },
     { id: "milan",     city: "Milan",     country: "IT", lon: 9.19,  lat: 45.46 },
-    { id: "warsaw",    city: "Varsovie",  country: "PL", lon: 21.0,  lat: 52.23 },
+    { id: "warsaw",    city: "Warsaw",    country: "PL", lon: 21.0,  lat: 52.23 },
   ];
 
   return (
@@ -116,11 +116,11 @@ const StepInfra = ({ config, setConfig, onNext }) => {
                    hoveredPop={config.pop} onPopHover={(id) => id && setConfig(c => ({ ...c, pop: id }))}>
               {() => null}
             </EUMap>
-          ) : <div style={{ padding: 20, color: "var(--ink-faint)" }}>Chargement carte…</div>}
+          ) : <div style={{ padding: 20, color: "var(--ink-faint)" }}>Loading map…</div>}
         </div>
         <div>
           <div style={{ padding: 16, background: "var(--color-grey-100)", borderLeft: "3px solid var(--orange)" }}>
-            <div style={{ fontSize: 11, color: "var(--ink-faint)", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 700 }}>Selectionné</div>
+            <div style={{ fontSize: 11, color: "var(--ink-faint)", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 700 }}>Selected</div>
             <div style={{ fontSize: 18, fontWeight: 700, margin: "4px 0" }}>Paris, FR</div>
             <div style={{ fontSize: 12, color: "var(--ink-soft)", marginBottom: 12 }}>Gcore PA-1 · Tier IV datacenter</div>
             <div style={{ borderTop: "1px solid var(--line)", paddingTop: 10, fontSize: 12 }}>

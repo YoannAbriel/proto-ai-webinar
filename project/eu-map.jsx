@@ -211,7 +211,7 @@ const MapSkeleton = ({ width, height, theme }) => (
   }}>
     <div style={{ textAlign: "center" }}>
       <div style={{ width: 24, height: 24, border: "2px solid var(--orange)", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 1s linear infinite", margin: "0 auto 10px" }} />
-      Chargement de la carte EU…
+      Loading EU map…
     </div>
   </div>
 );

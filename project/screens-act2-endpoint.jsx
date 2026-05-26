@@ -312,8 +312,8 @@ const LiveTestBlock = ({ phase }) => {
   const [stats, setStats] = useStateE({ latency: null, pop: null });
 
   const SAMPLE_REPLIES = [
-    { tokens: ["Hello", " !", " Je", " peux", " vous", " aider", " avec", " la", " conformité", " RGPD,", " la", " rédaction", " de", " documents", " ou", " l'analyse", " de", " texte", " — ", "que", " souhaitez-vous", " explorer", " ?"], latency: 84, pop: "Paris" },
-    { tokens: ["Pour", " déployer", " un", " modèle", " open-source", " sur", " infrastructure", " sovereign,", " Orange", " Business", " combine", " bare metal", " Gcore", " et", " routage", " edge", " sur", " son", " propre", " réseau", " fibre."], latency: 92, pop: "Paris" },
+    { tokens: ["Hello", " !", " I", " can", " help", " you", " with", " GDPR", " compliance,", " document", " drafting,", " or", " text", " analysis", " —", " what", " would", " you", " like", " to", " explore", " ?"], latency: 84, pop: "Paris" },
+    { tokens: ["To", " deploy", " an", " open-source", " model", " on", " sovereign", " infrastructure,", " Orange", " Business", " combines", " Gcore", " bare", " metal", " with", " edge", " routing", " over", " its", " own", " fibre", " network."], latency: 92, pop: "Paris" },
   ];
 
   const send = () => {

@@ -53,12 +53,12 @@ const EdgeScreen = () => {
           />
           <UseCaseCard
             icon="shield" sector="Public sector"
-            title="Sovereignty stricte + scale national"
-            bullets={["SecNumCloud-compatible", "14 national POPs", "Cost prévisible"]}
+            title="Strict sovereignty + national scale"
+            bullets={["SecNumCloud-compatible", "14 national POPs", "Predictable cost"]}
             color="#000"
           />
           <UseCaseCard
-            icon="factory" sector="Industrie & Energy"
+            icon="factory" sector="Industry & Energy"
             title="Real-time edge inference on remote sites"
             bullets={["Plants & refineries", "99.99% reliability", "Dedicated Orange 5G/fibre"]}
             color="#ea580c"
@@ -88,7 +88,7 @@ const EdgeScreen = () => {
             What's next?
           </div>
           <div style={{ fontSize: 30, fontWeight: 700, lineHeight: 1.2, letterSpacing: "-0.01em", maxWidth: 720 }}>
-            Tomorrow, your generative AI runs <em style={{ fontStyle: "normal", borderBottom: "3px solid #fff" }}>sovereign</em> ET <em style={{ fontStyle: "normal", borderBottom: "3px solid #fff" }}>right next to</em> your users.
+            Tomorrow, your generative AI runs <em style={{ fontStyle: "normal", borderBottom: "3px solid #fff" }}>sovereign</em> AND <em style={{ fontStyle: "normal", borderBottom: "3px solid #fff" }}>right next to</em> your users.
           </div>
           <div style={{ fontSize: 14, marginTop: 14, opacity: 0.85 }}>
             Let's discuss it with an Orange Business architect — 45 minutes, no commitment.
@@ -182,16 +182,16 @@ const SovereigntyCard = () => (
             { id:"lyon",      city:"Lyon",      lon: 4.85,  lat: 45.76 },
             { id:"marseille", city:"Marseille", lon: 5.37,  lat: 43.3 },
             { id:"madrid",    city:"Madrid",    lon: -3.7,  lat: 40.4 },
-            { id:"barcelona", city:"Barcelone", lon: 2.17,  lat: 41.4 },
-            { id:"lisbon",    city:"Lisbonne",  lon: -9.14, lat: 38.7 },
+            { id:"barcelona", city:"Barcelona", lon: 2.17,  lat: 41.4 },
+            { id:"lisbon",    city:"Lisbon",    lon: -9.14, lat: 38.7 },
             { id:"milan",     city:"Milan",     lon: 9.19,  lat: 45.46 },
             { id:"rome",      city:"Rome",      lon: 12.5,  lat: 41.9 },
-            { id:"brussels",  city:"Bruxelles", lon: 4.35,  lat: 50.85 },
+            { id:"brussels",  city:"Brussels",  lon: 4.35,  lat: 50.85 },
             { id:"amsterdam", city:"Amsterdam", lon: 4.9,   lat: 52.37 },
-            { id:"frankfurt", city:"Francfort", lon: 8.68,  lat: 50.11 },
+            { id:"frankfurt", city:"Frankfurt", lon: 8.68,  lat: 50.11 },
             { id:"munich",    city:"Munich",    lon: 11.58, lat: 48.14 },
             { id:"berlin",    city:"Berlin",    lon: 13.4,  lat: 52.52 },
-            { id:"warsaw",    city:"Varsovie",  lon: 21.0,  lat: 52.23 },
+            { id:"warsaw",    city:"Warsaw",    lon: 21.0,  lat: 52.23 },
           ]}
         >
           {() => null}

@@ -234,7 +234,7 @@ const PopTable = ({ popFilter, tick }) => {
     { city: "Milan",     country: "IT", load: 560,  p50: 15, p99: 36,  share: 6 },
     { city: "Lyon",      country: "FR", load: 540,  p50: 12, p99: 28,  share: 6 },
     { city: "Munich",    country: "DE", load: 480,  p50: 13, p99: 30,  share: 5 },
-    { city: "Barcelone", country: "ES", load: 440,  p50: 16, p99: 34,  share: 5 },
+    { city: "Barcelona", country: "ES", load: 440,  p50: 16, p99: 34,  share: 5 },
     { city: "Brussels",  country: "BE", load: 380,  p50: 8,  p99: 19,  share: 4 },
     { city: "Marseille", country: "FR", load: 340,  p50: 14, p99: 33,  share: 4 },
     { city: "Rome",      country: "IT", load: 320,  p50: 19, p99: 42,  share: 4 },
