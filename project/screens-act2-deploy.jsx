@@ -499,7 +499,12 @@ Object.assign(window, { DeployScreen });
 const ReviewYamlModal = ({ config, onClose, onConfirm }) => {
   const [copied, setCopied] = useState2(false);
   const [launching, setLaunching] = useState2(false);
+  const bodyRef = useRef2(null);
   const yaml = buildYaml(config);
+
+  useEffect2(() => {
+    if (bodyRef.current) bodyRef.current.scrollTop = 0;
+  }, []);
 
   const handleLaunch = () => {
     setLaunching(true);
@@ -528,7 +533,7 @@ const ReviewYamlModal = ({ config, onClose, onConfirm }) => {
           </button>
         </header>
 
-        <div className="review-body">
+        <div className="review-body" ref={bodyRef}>
           {/* Quick summary chips */}
           <div className="review-chips">
             <SummaryChip icon="catalog"  label="Model"      value="Mistral-Small-3-24B" />
