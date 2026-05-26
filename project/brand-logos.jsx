@@ -188,7 +188,7 @@ const ORG_BRANDS = {
   "Qwen / Alibaba": { src: "assets/logos/qwen.svg",         bg: "#fff", border: true, padded: true },
   "Microsoft":      { src: "assets/logos/microsoft.svg",    bg: "#fff", border: true, padded: true },
   "OpenAI":         { src: "assets/logos/openai.svg",       bg: "#fff", border: true, padded: true },
-  "LLaVA":          { src: "assets/logos/llava.png",        bg: "#fff", border: true, padded: true },
+  "LLaVA":          { glyph: "llava", bg: "#dc2626" },
   // BAAI brand identity is "智源" / clean wordmark on indigo. Real SVG not freely available;
   // wordmark in BAAI's signature deep indigo so the org reads as branded, not placeholder.
   "BAAI":           { wordmark: "BAAI", bg: "#1B2A6B", fg: "#fff" },
