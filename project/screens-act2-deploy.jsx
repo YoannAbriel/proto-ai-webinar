@@ -17,10 +17,9 @@ const DeployScreen = () => {
     edgeRouting: true,
   });
   const [edgeModalOpen, setEdgeModalOpen] = useState2(false);
-  const [reviewOpen, setReviewOpen] = useState2(false);
 
   const canLaunch = step === 3;
-  const handleLaunch = () => setReviewOpen(true);
+  const handleLaunch = () => go("endpoint");
 
   return (
     <div className="fade-in">
@@ -89,7 +88,6 @@ const DeployScreen = () => {
       </div>
 
       {edgeModalOpen && <EdgeInfoModal onClose={() => setEdgeModalOpen(false)} />}
-      {reviewOpen && <ReviewYamlModal config={config} onClose={() => setReviewOpen(false)} onConfirm={() => go("endpoint")} />}
     </div>
   );
 };
