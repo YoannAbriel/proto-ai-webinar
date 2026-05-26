@@ -36,7 +36,7 @@ const DeployScreen = () => {
         </div>
         <button className="btn btn-primary btn-lg" disabled={!canLaunch} onClick={handleLaunch}>
           <Icon name="play" size={14} />
-          Review & launch
+          Launch deployment
         </button>
       </div>
 
@@ -399,7 +399,7 @@ const StepScaling = ({ config, setConfig, onBack, onLaunch, openEdgeModal }) => 
         </button>
         <button className="btn btn-primary btn-lg" onClick={onLaunch}>
           <Icon name="play" size={14} />
-          Review & launch
+          Launch deployment
         </button>
       </div>
     </div>
@@ -443,7 +443,7 @@ const DeploySummary = ({ config, canLaunch, onLaunch }) => {
       </div>
       <div style={{ padding: 18, borderTop: "1px solid var(--line)" }}>
         <button className="btn btn-primary btn-block" style={{ width: "100%" }} disabled={!canLaunch} onClick={onLaunch}>
-          {canLaunch ? <><Icon name="play" size={14} /> Review & launch</> : "Complete the steps"}
+          {canLaunch ? <><Icon name="play" size={14} /> Launch deployment</> : "Complete the steps"}
         </button>
       </div>
     </div>
