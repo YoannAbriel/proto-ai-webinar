@@ -50,15 +50,18 @@ const EUMap = ({
   selectedPop = null,
   onPopHover = () => {},
   onPopClick = null,
+  center = [10, 49],
+  scaleFactor = 0.88,
   children,
 }) => {
   const data = useEuropeFeatures();
   if (!data) return <MapSkeleton width={width} height={height} theme={theme} />;
 
-  // Mercator projection centred on Europe with a hardcoded scale tuned for the POPs.
+  // Mercator projection centred on Europe. center/scaleFactor let callers that
+  // include the Nordic Cloud Avenue regions (Oslo/Stockholm) zoom out to fit them.
   const projection = d3.geoMercator()
-    .center([10, 49])
-    .scale(width * 0.88)
+    .center(center)
+    .scale(width * scaleFactor)
     .translate([width / 2, height / 2]);
   const pathGen = d3.geoPath().projection(projection);
 
@@ -166,7 +169,7 @@ const PopMarker = ({ pop, hovered, selected, onHover, onClick, showLabel, theme 
       </circle>
       {/* Node */}
       <circle cx={pop.x} cy={pop.y} r={selected ? r + 1.5 : r} fill="#ff7900" stroke={isDark ? "#fff" : "#000"} strokeWidth={hovered || selected ? 1.5 : 0.6} />
-      {isHub && <circle cx={pop.x} cy={pop.y} r="2" fill="#fff" />}
+      {(isHub || pop.deploy) && <circle cx={pop.x} cy={pop.y} r="2" fill="#fff" />}
       {/* Label */}
       {showLabel && (
         <>

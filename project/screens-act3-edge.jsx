@@ -22,10 +22,11 @@ const EdgeScreen = () => {
         </p>
       </div>
 
-      {/* 3 comparison cards */}
+      {/* 4 comparison cards */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 14, marginBottom: 32 }}>
         <LatencyCard />
         <SovereigntyCard />
+        <CarbonCard />
         <CostCard />
       </div>
 
@@ -63,6 +64,22 @@ const EdgeScreen = () => {
             bullets={["Plants & refineries", "99.99% reliability", "Dedicated Orange 5G/fibre"]}
             color="#ea580c"
           />
+        </div>
+      </div>
+
+      {/* Cloud Avenue + compliance */}
+      <div className="panel" style={{ padding: 24, marginBottom: 32, display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", gap: 24, alignItems: "center" }}>
+        <div>
+          <div className="kicker">Built on Orange Cloud Avenue</div>
+          <h3 style={{ fontSize: 18, fontWeight: 700, margin: "2px 0 6px" }}>Sovereign cloud, on our heritage as a world-class telecom operator</h3>
+          <p style={{ fontSize: 13, color: "var(--ink-soft)", margin: "0 0 14px", maxWidth: 620 }}>
+            Four strategic cloud regions (Oslo, Stockholm, Berlin, Paris) with more Orange DCs across the EU. NVIDIA inference frameworks, Gcore GPU infrastructure, water-efficient datacentres powered by low-carbon energy.
+          </p>
+          {window.ComplianceCerts ? <ComplianceCerts /> : null}
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 10 }}>
+          {window.CloudAvenueLockup ? <CloudAvenueLockup size={14} /> : null}
+          <span className="chip chip-eu" style={{ fontSize: 11 }}><EUFlag size={10} />No data leaves the EU</span>
         </div>
       </div>
 
@@ -161,67 +178,27 @@ const BarRow = ({ label, sub, value, max, color, animate, highlight }) => {
 };
 
 // ============ Sovereignty card ============
-const SovereigntyCard = () => (
+const FULL_SOV = { country: "FR", regionEU: true, allocation: "baremetal", isolatedEU: true, logsEU: true, hsm: true, edgeRouting: true, popCount: 3 };
+const SovereigntyCard = () => {
+  const sov = window.computeSovereignty ? window.computeSovereignty(FULL_SOV) : { score: 100, dims: [], level: { label: "Sovereign", color: "#1e8e1e" } };
+  return (
   <div className="panel" style={{ padding: 24, display: "flex", flexDirection: "column" }}>
     <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
       <Icon name="shield" size={20} className="text-primary" />
       <div style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--orange)" }}>Card 2 · Sovereignty</div>
     </div>
-    <h3 style={{ fontSize: 20, fontWeight: 700, margin: "0 0 18px" }}>100% of requests in EU</h3>
+    <h3 style={{ fontSize: 20, fontWeight: 700, margin: "0 0 16px" }}>Sovereign on four dimensions</h3>
 
-    {/* EU map with all POPs highlighted */}
-    <div style={{ background: "var(--color-grey-100)", padding: 12, marginBottom: 16, position: "relative", aspectRatio: "1.5/1", overflow: "hidden" }}>
-      {window.EUMap ? (
-        <EUMap
-          theme="light"
-          width={600}
-          height={400}
-          showLabels={false}
-          pops={[
-            { id:"paris",     city:"Paris",     hub: true, lon: 2.35,  lat: 48.86 },
-            { id:"lyon",      city:"Lyon",      lon: 4.85,  lat: 45.76 },
-            { id:"marseille", city:"Marseille", lon: 5.37,  lat: 43.3 },
-            { id:"madrid",    city:"Madrid",    lon: -3.7,  lat: 40.4 },
-            { id:"barcelona", city:"Barcelona", lon: 2.17,  lat: 41.4 },
-            { id:"lisbon",    city:"Lisbon",    lon: -9.14, lat: 38.7 },
-            { id:"milan",     city:"Milan",     lon: 9.19,  lat: 45.46 },
-            { id:"rome",      city:"Rome",      lon: 12.5,  lat: 41.9 },
-            { id:"brussels",  city:"Brussels",  lon: 4.35,  lat: 50.85 },
-            { id:"amsterdam", city:"Amsterdam", lon: 4.9,   lat: 52.37 },
-            { id:"frankfurt", city:"Frankfurt", lon: 8.68,  lat: 50.11 },
-            { id:"munich",    city:"Munich",    lon: 11.58, lat: 48.14 },
-            { id:"berlin",    city:"Berlin",    lon: 13.4,  lat: 52.52 },
-            { id:"warsaw",    city:"Warsaw",    lon: 21.0,  lat: 52.23 },
-          ]}
-        >
-          {() => null}
-        </EUMap>
-      ) : null}
-      {/* Big checkmark overlay */}
-      <div style={{
-        position: "absolute", top: 14, right: 14,
-        background: "#fff", padding: "8px 10px",
-        border: "1px solid var(--line)",
-        display: "inline-flex", alignItems: "center", gap: 6,
-      }}>
-        <span style={{
-          width: 22, height: 22, borderRadius: "50%",
-          background: "rgba(50,200,50,0.15)",
-          display: "grid", placeItems: "center",
-        }}>
-          <Icon name="check" size={14} className="" style={{ color: "var(--color-success)" }} />
-        </span>
-        <span className="chip chip-eu" style={{ fontSize: 10, padding: "2px 6px" }}>
-          <EUFlag size={10} />
-          14 EU POPs
-        </span>
-      </div>
+    <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
+      {window.SovGauge ? <SovGauge score={sov.score} level={sov.level} size={108} stroke={9} /> : null}
     </div>
 
-    <div style={{ background: "rgba(50,200,50,0.06)", padding: 14, marginTop: "auto" }}>
+    {window.SovDimensions ? <SovDimensions dims={sov.dims} /> : null}
+
+    <div style={{ background: "rgba(50,200,50,0.06)", padding: 14, marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 6 }}>
-        <span style={{ fontSize: 36, fontWeight: 700, color: "#1e8e1e", lineHeight: 1, letterSpacing: "-0.02em" }}>0</span>
-        <span style={{ fontSize: 13, color: "var(--ink-soft)" }}><strong>byte</strong> of data left the EU.</span>
+        <span style={{ fontSize: 30, fontWeight: 700, color: "#1e8e1e", lineHeight: 1, letterSpacing: "-0.02em" }}>0</span>
+        <span style={{ fontSize: 13, color: "var(--ink-soft)" }}><strong>byte</strong> of data left the EU. Keys held by Orange Business, outside the US Cloud Act.</span>
       </div>
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
         <span className="chip chip-success" style={{ fontSize: 10 }}>AI Act</span>
@@ -231,7 +208,62 @@ const SovereigntyCard = () => (
       </div>
     </div>
   </div>
-);
+  );
+};
+
+// ============ Carbon card ============
+const CarbonCard = () => {
+  const [animated, setAnimated] = useStateP(false);
+  useEffectP(() => { const t = setTimeout(() => setAnimated(true), 300); return () => clearTimeout(t); }, []);
+  const id = "mistral-small-24b";
+  const fr = window.gco2PerMtok ? window.gco2PerMtok(id, "FR", true) : 60;
+  const de = window.gco2PerMtok ? window.gco2PerMtok(id, "DE", true) : 410;
+  const us = Math.round(de * 1.05); // US average grid ~ similar to DE here, SaaS adds transit
+  const ratio = Math.max(1, Math.round(de / Math.max(fr, 1)));
+  const maxv = Math.max(fr, de, us);
+  return (
+    <div className="panel" style={{ padding: 24, display: "flex", flexDirection: "column" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
+        <Icon name="leaf" size={20} style={{ color: "#1e8e1e" }} />
+        <div style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--orange)" }}>Card 3 · Carbon</div>
+      </div>
+      <h3 style={{ fontSize: 20, fontWeight: 700, margin: "0 0 18px" }}>{ratio}× lower carbon in France</h3>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 16 }}>
+        <CarbonBar label="Orange × Gcore · Paris" sub="98% low-carbon grid" value={fr} max={maxv} color="#1e8e1e" animate={animated} highlight />
+        <CarbonBar label="Same model · Frankfurt" sub="German grid" value={de} max={maxv} color="var(--color-grey-700)" animate={animated} />
+        <CarbonBar label="US SaaS API" sub="US grid + transit" value={us} max={maxv} color="var(--color-grey-700)" animate={animated} />
+      </div>
+
+      <div style={{ background: "rgba(50,200,50,0.06)", padding: 14, marginTop: "auto" }}>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+          <span style={{ fontSize: 36, fontWeight: 700, color: "#1e8e1e", lineHeight: 1, letterSpacing: "-0.02em" }}>−{Math.round((1 - fr / de) * 100)}%</span>
+          <span style={{ fontSize: 13, color: "var(--ink-soft)", flex: 1 }}>gCO₂e per token vs the same model in Germany.</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const CarbonBar = ({ label, sub, value, max, color, animate, highlight }) => {
+  const w = animate ? (value / max) * 100 : 0;
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 700 }}>{label}</div>
+          <div style={{ fontSize: 11, color: "var(--ink-faint)" }}>{sub}</div>
+        </div>
+        <div style={{ fontSize: 18, fontWeight: 700, fontFamily: "var(--font-mono)", color: highlight ? color : "#000" }}>
+          {value}<span style={{ fontSize: 10, color: "var(--ink-faint)", marginLeft: 2, fontWeight: 500 }}>g/Mtok</span>
+        </div>
+      </div>
+      <div style={{ height: 10, background: "var(--color-grey-200)", position: "relative", overflow: "hidden" }}>
+        <div style={{ width: `${w}%`, height: "100%", background: color, transition: "width 900ms var(--easing-decelerate)" }} />
+      </div>
+    </div>
+  );
+};
 
 // ============ Cost card ============
 const CostCard = () => {

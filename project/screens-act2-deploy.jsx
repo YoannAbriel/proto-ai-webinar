@@ -3,11 +3,13 @@ const { useState: useState2, useEffect: useEffect2, useMemo: useMemo2, useRef: u
 
 // ============ Screen 3: Deployment configuration ============
 const DeployScreen = () => {
-  const { go } = useNav();
+  const { go, modelId } = useNav();
+  const model = (window.MODELS || []).find(x => x.id === modelId) || (window.MODELS || [])[0] || { name: "Mistral-Small-3-24B", id: "mistral-small-24b" };
+  const hw = window.hwFor ? window.hwFor(model.id) : { gpu: "H100", costPerH: 2.40, tokps: 142 };
   const [step, setStep] = useState2(1);
   const [config, setConfig] = useState2({
-    pop: "paris",
-    hardware: "h100",
+    deployPops: ["paris"],          // multi-POP bare-metal deployment (primary first)
+    hardware: (hw.gpu || "H100").toLowerCase(),
     allocation: "baremetal",
     isolatedEU: true,   // locked
     logsEU: true,
@@ -15,11 +17,16 @@ const DeployScreen = () => {
     scaling: "scale-to-zero",
     maxInstances: 4,
     edgeRouting: true,
+    dynamo: true,       // NVIDIA Dynamo inference optimisation
   });
   const [edgeModalOpen, setEdgeModalOpen] = useState2(false);
 
   const canLaunch = step === 3;
-  const handleLaunch = () => go("endpoint");
+  const handleLaunch = () => {
+    // Carry the configuration into the live endpoint so it reflects real choices.
+    window.__deployConfig = { config, model, hw };
+    go("endpoint");
+  };
 
   return (
     <div className="fade-in">
@@ -31,8 +38,8 @@ const DeployScreen = () => {
       <div className="page-head" style={{ alignItems: "center" }}>
         <div>
           <div className="kicker">Act 2 · Configuration</div>
-          <h1>Deploy Mistral-Small-3-24B</h1>
-          <p className="subtitle">Three steps to production. Sovereignty pre-wired, scaling and edge optional.</p>
+          <h1>Deploy {model.name}</h1>
+          <p className="subtitle">Three steps to production. Sovereignty scored live, carbon and edge optimised.</p>
         </div>
         <button className="btn btn-primary btn-lg" disabled={!canLaunch} onClick={handleLaunch}>
           <Icon name="play" size={14} />
@@ -79,12 +86,12 @@ const DeployScreen = () => {
 
       <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 300px", gap: 20, alignItems: "start" }}>
         <div>
-          {step === 1 && <StepInfra config={config} setConfig={setConfig} onNext={() => setStep(2)} />}
+          {step === 1 && <StepInfra config={config} setConfig={setConfig} model={model} hw={hw} onNext={() => setStep(2)} />}
           {step === 2 && <StepSovereign config={config} setConfig={setConfig} onNext={() => setStep(3)} onBack={() => setStep(1)} />}
-          {step === 3 && <StepScaling config={config} setConfig={setConfig} onBack={() => setStep(2)} onLaunch={handleLaunch} openEdgeModal={() => setEdgeModalOpen(true)} />}
+          {step === 3 && <StepScaling config={config} setConfig={setConfig} model={model} hw={hw} onBack={() => setStep(2)} onLaunch={handleLaunch} openEdgeModal={() => setEdgeModalOpen(true)} />}
         </div>
 
-        <DeploySummary config={config} canLaunch={canLaunch} onLaunch={handleLaunch} />
+        <DeploySummary config={config} model={model} hw={hw} canLaunch={canLaunch} onLaunch={handleLaunch} />
       </div>
 
       {edgeModalOpen && <EdgeInfoModal onClose={() => setEdgeModalOpen(false)} />}
@@ -93,62 +100,114 @@ const DeployScreen = () => {
 };
 
 // ============ Step 1: Infrastructure ============
-const StepInfra = ({ config, setConfig, onNext }) => {
-  const REGION_POPS = [
-    { id: "paris",     city: "Paris",     country: "FR", lon: 2.35,  lat: 48.86, hub: true },
-    { id: "amsterdam", city: "Amsterdam", country: "NL", lon: 4.9,   lat: 52.37 },
-    { id: "frankfurt", city: "Frankfurt", country: "DE", lon: 8.68,  lat: 50.11 },
-    { id: "madrid",    city: "Madrid",    country: "ES", lon: -3.7,  lat: 40.4 },
-    { id: "milan",     city: "Milan",     country: "IT", lon: 9.19,  lat: 45.46 },
-    { id: "warsaw",    city: "Warsaw",    country: "PL", lon: 21.0,  lat: 52.23 },
-  ];
+const StepInfra = ({ config, setConfig, model, hw, onNext }) => {
+  const ALL_POPS = window.DEPLOY_POPS || [];
+  const CARBON = window.CARBON_INTENSITY || {};
+  const MIX = window.ENERGY_MIX || {};
+  const canHost = (pop) => window.popCanHost ? window.popCanHost(pop, model.id) : true;
+  const primary = config.deployPops[0];
+  const primaryPop = (window.POP_BY_ID || {})[primary] || ALL_POPS[0] || {};
+  const carbonPrimary = CARBON[primaryPop.country] || 56;
+
+  const togglePop = (id) => setConfig(c => {
+    if (id === c.deployPops[0]) return c;                 // primary stays
+    const has = c.deployPops.includes(id);
+    return { ...c, deployPops: has ? c.deployPops.filter(p => p !== id) : [...c.deployPops, id] };
+  });
 
   return (
     <div className="panel fade-in" style={{ padding: 28 }}>
       <h2 style={{ fontSize: 18, fontWeight: 700, margin: "0 0 4px" }}>Infrastructure</h2>
-      <p className="muted" style={{ margin: "0 0 24px", fontSize: 13 }}>Choose where your model is physically provisioned.</p>
+      <p className="muted" style={{ margin: "0 0 24px", fontSize: 13 }}>Deploy the model on bare metal in one or several EU sites — for residency, latency and carbon.</p>
 
-      <SectionLabel>Region (POPs Gcore × Orange edge)</SectionLabel>
-      <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 220px", gap: 16, marginBottom: 24 }}>
+      <SectionLabel>Deployment regions — Cloud Avenue (Oslo · Stockholm · Berlin · Paris) + EU DCs</SectionLabel>
+      <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 240px", gap: 16, marginBottom: 16 }}>
         <div style={{ background: "var(--color-grey-100)", overflow: "hidden", aspectRatio: "1.6/1", position: "relative" }}>
           {window.EUMap ? (
-            <EUMap theme="light" width={560} height={350} showLabels={true} pops={REGION_POPS}
-                   hoveredPop={config.pop} onPopHover={(id) => id && setConfig(c => ({ ...c, pop: id }))}>
+            <EUMap theme="light" width={560} height={350} showLabels={true} center={[11, 55]} scaleFactor={0.62}
+                   pops={ALL_POPS.map(p => ({ ...p, hub: config.deployPops.includes(p.id), hubLabel: false }))}
+                   selectedPop={primary} onPopClick={(id) => { const p = (window.POP_BY_ID||{})[id]; if (p && canHost(p)) togglePop(id); }}>
               {() => null}
             </EUMap>
           ) : <div style={{ padding: 20, color: "var(--ink-faint)" }}>Loading map…</div>}
         </div>
         <div>
           <div style={{ padding: 16, background: "var(--color-grey-100)", borderLeft: "3px solid var(--orange)" }}>
-            <div style={{ fontSize: 11, color: "var(--ink-faint)", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 700 }}>Selected</div>
-            <div style={{ fontSize: 18, fontWeight: 700, margin: "4px 0" }}>Paris, FR</div>
-            <div style={{ fontSize: 12, color: "var(--ink-soft)", marginBottom: 12 }}>Gcore PA-1 · Tier IV datacenter</div>
-            <div style={{ borderTop: "1px solid var(--line)", paddingTop: 10, fontSize: 12 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", padding: "2px 0" }}><span className="faint">H100 capacity</span><strong>248 GPU</strong></div>
-              <div style={{ display: "flex", justifyContent: "space-between", padding: "2px 0" }}><span className="faint">Local latency</span><strong>4 ms</strong></div>
-              <div style={{ display: "flex", justifyContent: "space-between", padding: "2px 0" }}><span className="faint">Energy</span><strong>98% nuclear</strong></div>
+            <div style={{ fontSize: 11, color: "var(--ink-faint)", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 700 }}>Deployment footprint</div>
+            <div style={{ fontSize: 18, fontWeight: 700, margin: "4px 0" }}>{config.deployPops.length} site{config.deployPops.length > 1 ? "s" : ""}</div>
+            <div style={{ fontSize: 12, color: "var(--ink-soft)", marginBottom: 12 }}>
+              {config.deployPops.map(id => (window.POP_BY_ID||{})[id]?.city).filter(Boolean).join(" · ")}
             </div>
+            <div style={{ borderTop: "1px solid var(--line)", paddingTop: 10, fontSize: 12 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", padding: "2px 0" }}><span className="faint">Primary</span><strong>{primaryPop.city} {primaryPop.country}</strong></div>
+              <div style={{ display: "flex", justifyContent: "space-between", padding: "2px 0" }}><span className="faint">Local latency</span><strong>{primaryPop.latency} ms</strong></div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "2px 0" }}>
+                <span className="faint" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><Icon name="leaf" size={12} style={{ color: "#1e8e1e" }} />Carbon</span>
+                <strong style={{ color: "#1e8e1e" }}>{carbonPrimary} g/kWh</strong>
+              </div>
+            </div>
+            <div style={{ fontSize: 11, color: "var(--ink-faint)", marginTop: 8, lineHeight: 1.4 }}>{MIX[primaryPop.country]}</div>
           </div>
         </div>
       </div>
 
-      <SectionLabel>Hardware</SectionLabel>
+      {/* POP picker — gated on GPU availability for this model */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginBottom: 24 }}>
+        {ALL_POPS.map(pop => {
+          const selected = config.deployPops.includes(pop.id);
+          const hostable = canHost(pop);
+          const isPrimary = pop.id === primary;
+          return (
+            <button key={pop.id} disabled={!hostable} onClick={() => togglePop(pop.id)} style={{
+              textAlign: "left", padding: "10px 12px", fontFamily: "inherit", cursor: hostable ? "pointer" : "not-allowed",
+              background: selected ? "rgba(255,121,0,0.06)" : "#fff",
+              border: `2px solid ${selected ? "var(--orange)" : "var(--color-grey-400)"}`,
+              opacity: hostable ? 1 : 0.55,
+              display: "flex", flexDirection: "column", gap: 3,
+            }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6 }}>
+                <span style={{ fontSize: 13, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  <span style={{
+                    width: 13, height: 13, borderRadius: "50%", flexShrink: 0,
+                    border: `2px solid ${selected ? "var(--orange)" : "var(--color-grey-500)"}`,
+                    background: selected ? "var(--orange)" : "transparent", boxShadow: selected ? "inset 0 0 0 2px #fff" : "none",
+                  }} />
+                  {pop.city}
+                </span>
+                {isPrimary ? <span className="chip chip-orange" style={{ fontSize: 9 }}>Primary</span>
+                  : pop.strategic ? <span className="chip chip-outline" style={{ fontSize: 9 }}>Cloud Avenue</span> : null}
+              </div>
+              <div style={{ fontSize: 11, color: "var(--ink-faint)", paddingLeft: 19 }}>
+                {hostable ? `${pop.gpu} · ${pop.gpuFree} free · ${pop.latency} ms` : `No ${hw.gpu} — edge-cache only`}
+              </div>
+              <div style={{ fontSize: 11, paddingLeft: 19, color: (CARBON[pop.country] || 0) < 120 ? "#1e8e1e" : "var(--ink-faint)", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                <Icon name="leaf" size={11} /> {CARBON[pop.country]} g/kWh
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      <SectionLabel>Hardware — recommended for {model.name}</SectionLabel>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 28 }}>
         {[
-          { id: "h100", title: "1× H100 80GB", note: "Recommended · 142 tok/s", price: "€2.40", recommended: true },
-          { id: "l40s", title: "2× L40S 48GB", note: "Equivalent · 128 tok/s", price: "€1.95" },
-          { id: "a100", title: "1× A100 80GB", note: "Economical · 98 tok/s",  price: "€1.60" },
-        ].map(h => (
-          <RadioCard
-            key={h.id}
-            selected={config.hardware === h.id}
-            onClick={() => setConfig(c => ({ ...c, hardware: h.id }))}
-            title={h.title}
-            note={h.note}
-            extra={h.recommended && <span className="chip chip-orange" style={{ fontSize: 10 }}>Recommended</span>}
-            price={h.price + "/h"}
-          />
-        ))}
+          { id: "h100", title: "1× H100 80GB", tps: 142, price: "€2.40" },
+          { id: "l40s", title: "2× L40S 48GB", tps: 128, price: "€1.95" },
+          { id: "a100", title: "1× A100 80GB", tps: 98,  price: "€1.60" },
+        ].map(h => {
+          const recommended = (hw.gpu || "h100").toLowerCase() === h.id;
+          return (
+            <RadioCard
+              key={h.id}
+              selected={config.hardware === h.id}
+              onClick={() => setConfig(c => ({ ...c, hardware: h.id }))}
+              title={h.title}
+              note={`${recommended ? "Recommended" : "Compatible"} · ${h.tps} tok/s`}
+              extra={recommended && <span className="chip chip-orange" style={{ fontSize: 10 }}>Recommended</span>}
+              price={h.price + "/h"}
+            />
+          );
+        })}
       </div>
 
       <SectionLabel>Allocation type</SectionLabel>
@@ -231,11 +290,33 @@ const EUMapPicker = null;
 const EUOutline = null;
 
 // ============ Step 2: Sovereignty ============
+const sovCfg = (config) => {
+  const primaryPop = (window.POP_BY_ID || {})[config.deployPops[0]] || {};
+  return {
+    country: primaryPop.country, regionEU: true,
+    allocation: config.allocation, isolatedEU: config.isolatedEU,
+    logsEU: config.logsEU, hsm: config.hsm,
+    edgeRouting: config.edgeRouting, popCount: config.deployPops.length,
+  };
+};
+
 const StepSovereign = ({ config, setConfig, onNext, onBack }) => {
+  const sov = window.computeSovereignty ? window.computeSovereignty(sovCfg(config)) : { score: 0, dims: [], level: null };
   return (
     <div className="panel fade-in" style={{ padding: 28 }}>
       <h2 style={{ fontSize: 18, fontWeight: 700, margin: "0 0 4px" }}>Sovereignty</h2>
-      <p className="muted" style={{ margin: "0 0 20px", fontSize: 13 }}>Compliance guarantees on by default. Unchecking breaks AI Act compliance.</p>
+      <p className="muted" style={{ margin: "0 0 20px", fontSize: 13 }}>Four dimensions of the Orange sovereignty framework. The index updates live as you change the configuration.</p>
+
+      {/* Reactive sovereignty index */}
+      <div style={{ background: "#000", color: "#fff", padding: 24, marginBottom: 24, borderLeft: "3px solid var(--orange)" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--orange)", display: "inline-flex", alignItems: "center", gap: 6 }}>
+            <Icon name="gauge" size={14} /> Sovereignty index
+          </div>
+          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.6)" }}>{config.deployPops.length} EU site{config.deployPops.length > 1 ? "s" : ""} · {(window.POP_BY_ID||{})[config.deployPops[0]]?.city}</span>
+        </div>
+        {window.SovereigntyPanel ? <SovereigntyPanel cfg={sovCfg(config)} dark /> : <div style={{ fontSize: 40, fontWeight: 700 }}>{sov.score}/100</div>}
+      </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 24 }}>
         <SovereignRow
@@ -276,6 +357,13 @@ const StepSovereign = ({ config, setConfig, onNext, onBack }) => {
           <EUFlag size={10} />
           Compliant
         </span>
+      </div>
+
+      <div style={{ background: "var(--color-grey-100)", padding: 16, marginBottom: 24 }}>
+        {window.ComplianceCerts ? <ComplianceCerts title="Cloud Avenue certifications" /> : null}
+        <div style={{ fontSize: 11, color: "var(--ink-faint)", marginTop: 10 }}>
+          The right level on each axis depends on your industry positioning and risk tolerance.
+        </div>
       </div>
 
       <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -319,7 +407,10 @@ const SovereignRow = ({ icon, title, desc, on, locked, onToggle }) => (
 );
 
 // ============ Step 3: Scaling ============
-const StepScaling = ({ config, setConfig, onBack, onLaunch, openEdgeModal }) => {
+const StepScaling = ({ config, setConfig, model, hw, onBack, onLaunch, openEdgeModal }) => {
+  const D = window.DYNAMO || { tokpsGainPct: 35, ttftReductionPct: 42, kvReusePct: 72 };
+  const baseTps = (hw && hw.tokps) || 142;
+  const effTps = Math.round(baseTps * (config.dynamo ? 1 + D.tokpsGainPct / 100 : 1));
   return (
     <div className="panel fade-in" style={{ padding: 28 }}>
       <h2 style={{ fontSize: 18, fontWeight: 700, margin: "0 0 4px" }}>Scaling & routing</h2>
@@ -358,8 +449,35 @@ const StepScaling = ({ config, setConfig, onBack, onLaunch, openEdgeModal }) => 
           <span>20</span>
         </div>
         <div style={{ fontSize: 12, color: "var(--ink-soft)", marginTop: 8 }}>
-          Peak capacity : {config.maxInstances * 142} tok/s · {config.maxInstances * 568} req/min
+          Peak capacity : {(config.maxInstances * effTps).toLocaleString()} tok/s · {(config.maxInstances * Math.round(effTps * 4)).toLocaleString()} req/min{config.dynamo ? " · with Dynamo" : ""}
         </div>
+      </div>
+
+      <SectionLabel>Inference optimisation</SectionLabel>
+      <div style={{
+        padding: 18, marginBottom: 24,
+        background: config.dynamo ? "linear-gradient(135deg, rgba(118,185,0,0.07), rgba(118,185,0,0.02))" : "#fff",
+        border: `2px solid ${config.dynamo ? "#76b900" : "var(--color-grey-400)"}`,
+      }}>
+        <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
+          <div style={{ width: 40, height: 40, background: "#76b900", color: "#000", display: "grid", placeItems: "center" }}>
+            <Icon name="cpu" size={20} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>{D.name} — {D.tagline}</div>
+            <div style={{ fontSize: 12, color: "var(--ink-soft)", lineHeight: 1.5 }}>{D.desc}</div>
+          </div>
+          <div className={`toggle ${config.dynamo ? "on" : ""}`} onClick={() => setConfig(c => ({ ...c, dynamo: !c.dynamo }))}>
+            <span className="track" />
+          </div>
+        </div>
+        {config.dynamo && (
+          <div style={{ marginTop: 14, paddingTop: 14, borderTop: "1px dashed #76b900", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, fontSize: 12 }}>
+            <div><div className="faint" style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>Throughput</div><strong>+{D.tokpsGainPct}% · {effTps} tok/s</strong></div>
+            <div><div className="faint" style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>Time-to-first-token</div><strong>−{D.ttftReductionPct}%</strong></div>
+            <div><div className="faint" style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>KV cache reuse</div><strong>{D.kvReusePct}%</strong></div>
+          </div>
+        )}
       </div>
 
       <SectionLabel>Orange edge routing</SectionLabel>
@@ -407,36 +525,65 @@ const StepScaling = ({ config, setConfig, onBack, onLaunch, openEdgeModal }) => 
 };
 
 // ============ Récap (right column) ============
-const DeploySummary = ({ config, canLaunch, onLaunch }) => {
+const DeploySummary = ({ config, model, hw, canLaunch, onLaunch }) => {
+  const D = window.DYNAMO || { tokpsGainPct: 35 };
+  const primaryPop = (window.POP_BY_ID || {})[config.deployPops[0]] || { city: "Paris", country: "FR" };
+  const sov = window.computeSovereignty ? window.computeSovereignty(sovCfg(config)) : { score: 0, level: null };
+  const perH = (config.hardware === "h100" ? 2.40 : config.hardware === "l40s" ? 1.95 : 1.60);
+  const totalPerH = perH * config.deployPops.length;
+  const carbon = window.gco2PerMtok ? window.gco2PerMtok(model.id, primaryPop.country, config.dynamo) : 77;
   return (
     <div className="panel" style={{ position: "sticky", top: 80 }}>
       <div style={{ padding: 16, borderBottom: "1px solid var(--line)", background: "#000", color: "#fff" }}>
         <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--orange)" }}>Summary</div>
         <div style={{ fontSize: 14, fontWeight: 700, marginTop: 2 }}>Deployment express</div>
       </div>
+
+      {/* Sovereignty index strip */}
+      <div style={{ padding: "14px 18px", borderBottom: "1px solid var(--line)", display: "flex", alignItems: "center", gap: 14, background: "var(--color-grey-100)" }}>
+        {window.SovGauge ? <SovGauge score={sov.score} level={sov.level} size={68} stroke={7} /> : null}
+        <div style={{ minWidth: 0 }}>
+          <div className="faint" style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>Sovereignty index</div>
+          <div style={{ fontSize: 13, fontWeight: 700, marginTop: 2 }}>{sov.level ? sov.level.label : ""}</div>
+          <div style={{ fontSize: 11, color: "var(--ink-faint)" }}>Data · Tech · Juridical · Operational</div>
+        </div>
+      </div>
+
       <div style={{ padding: 18, display: "flex", flexDirection: "column", gap: 12, fontSize: 13 }}>
-        <SummaryRow label="Model"  value="Mistral-Small-3-24B" />
-        <SummaryRow label="Region"  value={<><span style={{ display: "inline-block", width: 14, height: 10, background: "#0055A4", marginRight: 4, verticalAlign: -1 }}><span style={{ display: "inline-block", width: 5, height: 10, background: "#fff" }} /><span style={{ display: "inline-block", width: 5, height: 10, background: "#EF4135" }} /></span>Paris (PA-1)</>} />
-        <SummaryRow label="Hardware" value={config.hardware === "h100" ? "1× H100 80GB" : config.hardware === "l40s" ? "2× L40S 48GB" : "1× A100 80GB"} />
+        <SummaryRow label="Model"  value={model.name} />
+        <SummaryRow label="Regions"  value={`${primaryPop.city}${config.deployPops.length > 1 ? ` +${config.deployPops.length - 1}` : ""} (${config.deployPops.length} site${config.deployPops.length > 1 ? "s" : ""})`} />
+        <SummaryRow label="Hardware" value={hwLabel(config.hardware)} />
         <SummaryRow label="Allocation" value="Dedicated bare metal" />
+        <SummaryRow label="Optimisation" value={config.dynamo ? "NVIDIA Dynamo" : "vLLM standard"} />
         <SummaryRow label="Scaling" value={config.scaling === "scale-to-zero" ? "Scale-to-zero" : "Always on"} />
         <SummaryRow label="Max capacity" value={`${config.maxInstances} GPU`} />
 
         <hr className="divider" style={{ margin: "4px 0" }} />
 
-        <div>
-          <div className="faint" style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>Cost</div>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-            <strong style={{ fontSize: 22 }}>€2.40</strong>
-            <span className="faint" style={{ fontSize: 12 }}>/h active</span>
+        <div style={{ display: "flex", gap: 16 }}>
+          <div style={{ flex: 1 }}>
+            <div className="faint" style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>Cost</div>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+              <strong style={{ fontSize: 20 }}>€{totalPerH.toFixed(2)}</strong>
+              <span className="faint" style={{ fontSize: 11 }}>/h active</span>
+            </div>
+            <div className="faint" style={{ fontSize: 11 }}>€0/h scale-to-zero</div>
           </div>
-          <div className="faint" style={{ fontSize: 11 }}>€0/h during scale-to-zero</div>
+          <div style={{ flex: 1 }}>
+            <div className="faint" style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4, display: "inline-flex", alignItems: "center", gap: 4 }}><Icon name="leaf" size={11} style={{ color: "#1e8e1e" }} />Carbon</div>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+              <strong style={{ fontSize: 20, color: "#1e8e1e" }}>{carbon}</strong>
+              <span className="faint" style={{ fontSize: 11 }}>g/Mtok</span>
+            </div>
+            <div className="faint" style={{ fontSize: 11 }}>{primaryPop.country} grid</div>
+          </div>
         </div>
 
         <hr className="divider" style={{ margin: "4px 0" }} />
 
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
           <span className="chip chip-eu"><EUFlag size={10} />Sovereign</span>
+          {config.dynamo && <span className="chip" style={{ background: "rgba(118,185,0,0.14)", color: "#4d7c00" }}><Icon name="cpu" size={10} />Dynamo</span>}
           {config.edgeRouting && <span className="chip chip-orange"><Icon name="grid" size={10} />Orange Edge</span>}
           <span className="chip chip-success"><span className="dot" />AI Act ready</span>
         </div>

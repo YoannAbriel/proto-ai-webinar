@@ -39,6 +39,12 @@ const ICON_MAP = {
   bank:        "landmark",
   health:      "heart-pulse",
   factory:     "factory",
+  leaf:        "leaf",
+  cpu:         "cpu",
+  gauge:       "gauge",
+  mapPin:      "map-pin",
+  branch:      "git-branch",
+  scale:       "scale",
 };
 
 const Icon = ({ name, size = 18, className = "", style }) => {
@@ -127,19 +133,22 @@ const useNav = () => useContext(NavCtx);
 
 // ============ Topbar ============
 const Topbar = ({ collapsed, onToggle }) => {
-  const { screen, go } = useNav();
+  const { screen, go, modelId } = useNav();
   const crumbs = useMemo(() => {
+    const model = (window.MODELS || []).find(x => x.id === modelId);
+    const modelName = model ? model.name : "Mistral-Small-3-24B-Instruct";
+    const slug = modelId || "mistral-small-24b";
     const map = {
       catalogue:    [{ label: "AI Orchestrator", to: "catalogue" }, { label: "Model catalogue" }],
-      detail:       [{ label: "AI Orchestrator", to: "catalogue" }, { label: "Catalogue", to: "catalogue" }, { label: "Mistral-Small-3-24B-Instruct" }],
+      detail:       [{ label: "AI Orchestrator", to: "catalogue" }, { label: "Catalogue", to: "catalogue" }, { label: modelName }],
       deploy:       [{ label: "AI Orchestrator", to: "catalogue" }, { label: "Catalogue", to: "catalogue" }, { label: "Deployment configuration" }],
-      endpoint:     [{ label: "AI Orchestrator", to: "catalogue" }, { label: "Deployments", to: "endpoint" }, { label: "mistral-small-24b · paris-1" }],
+      endpoint:     [{ label: "AI Orchestrator", to: "catalogue" }, { label: "Deployments", to: "endpoint" }, { label: `${slug} · paris-1` }],
       grid:         [{ label: "AI Orchestrator", to: "catalogue" }, { label: "AI Grid" }],
       edge:         [{ label: "AI Orchestrator", to: "catalogue" }, { label: "AI Grid", to: "grid" }, { label: "Edge Performance" }],
       monitor:      [{ label: "AI Orchestrator", to: "catalogue" }, { label: "Operations" }, { label: "Monitoring" }],
     };
     return map[screen] || [];
-  }, [screen]);
+  }, [screen, modelId]);
 
   return (
     <header className="topbar">
@@ -302,11 +311,11 @@ const Footer = () => (
   <footer className="footer">
     <div>
       <span className="orange-square-mini" />
-      Powered by Orange edge network · Gcore bare metal
+      Powered by Orange Cloud Avenue · NVIDIA × Gcore bare metal
     </div>
     <div style={{ display: "flex", gap: 16 }}>
       <span>v0.4.2-preview</span>
-      <span>Paris-1 · 14 EU POPs</span>
+      <span>4 cloud regions · EU edge network</span>
     </div>
   </footer>
 );

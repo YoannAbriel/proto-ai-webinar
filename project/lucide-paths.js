@@ -1,5 +1,20 @@
 /* Auto-generated from lucide-static — do not edit. */
 window.LUCIDE_PATHS = {
+  "leaf": `<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path>
+  <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path>`,
+  "cpu": `<rect width="16" height="16" x="4" y="4" rx="2"></rect>
+  <rect width="6" height="6" x="9" y="9" rx="1"></rect>
+  <path d="M15 2v2"></path><path d="M15 20v2"></path><path d="M2 15h2"></path>
+  <path d="M2 9h2"></path><path d="M20 15h2"></path><path d="M20 9h2"></path>
+  <path d="M9 2v2"></path><path d="M9 20v2"></path>`,
+  "gauge": `<path d="m12 14 4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path>`,
+  "map-pin": `<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path>
+  <circle cx="12" cy="10" r="3"></circle>`,
+  "git-branch": `<line x1="6" x2="6" y1="3" y2="15"></line><circle cx="18" cy="6" r="3"></circle>
+  <circle cx="6" cy="18" r="3"></circle><path d="M18 9a9 9 0 0 1-9 9"></path>`,
+  "scale": `<path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
+  <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
+  <path d="M7 21h10"></path><path d="M12 3v18"></path><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path>`,
   "layout-grid": `<rect width="7" height="7" x="3" y="3" rx="1"></rect>
   <rect width="7" height="7" x="14" y="3" rx="1"></rect>
   <rect width="7" height="7" x="14" y="14" rx="1"></rect>

@@ -4,6 +4,16 @@ const { useState: useStateE, useEffect: useEffectE, useRef: useRefE } = React;
 // ============ Screen 4: Endpoint Live ============
 const EndpointScreen = () => {
   const { go } = useNav();
+  // Reflect the deployment that was just launched (falls back to the canonical demo config).
+  const dep = window.__deployConfig || {};
+  const depModel = dep.model || { id: "mistral-small-24b", name: "Mistral-Small-3-24B" };
+  const depHw = dep.hw || (window.hwFor ? window.hwFor(depModel.id) : { gpu: "H100", tokps: 142, costPerH: 2.40 });
+  const depCfg = dep.config || { deployPops: ["paris", "oslo", "stockholm"], dynamo: true, allocation: "baremetal", isolatedEU: true, logsEU: true, hsm: true, edgeRouting: true };
+  const depPops = (depCfg.deployPops || ["paris"]).map(id => (window.POP_BY_ID || {})[id]).filter(Boolean);
+  const primaryPop = depPops[0] || { city: "Paris", country: "FR", site: "Gcore PA-1" };
+  const slug = depModel.id;
+  const effTps = Math.round((depHw.tokps || 142) * (depCfg.dynamo ? 1.35 : 1));
+  const sov = window.computeSovereignty ? window.computeSovereignty({ country: primaryPop.country, regionEU: true, allocation: depCfg.allocation, isolatedEU: depCfg.isolatedEU, logsEU: depCfg.logsEU, hsm: depCfg.hsm, edgeRouting: depCfg.edgeRouting, popCount: depPops.length }) : { score: 96 };
   const [phase, setPhase] = useStateE("provisioning"); // provisioning | live
   const [step, setStep] = useStateE(0);
   const [uptime, setUptime] = useStateE(0);
@@ -45,7 +55,7 @@ const EndpointScreen = () => {
         <div>
           <div className="kicker">Act 2 · Endpoint</div>
           <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
-            <h1 style={{ fontSize: 26, fontWeight: 700, margin: 0, fontFamily: "var(--font-mono)" }}>mistral-small-24b · paris-1</h1>
+            <h1 style={{ fontSize: 26, fontWeight: 700, margin: 0, fontFamily: "var(--font-mono)" }}>{slug} · {primaryPop.city.toLowerCase()}-1</h1>
             {phase === "provisioning" ? (
               <span className="chip chip-pill" style={{ background: "rgba(255,121,0,0.12)", color: "var(--orange)" }}>
                 <span className="dot spin" style={{ background: "var(--orange)", borderRadius: 0, width: 8, height: 8, border: "2px solid var(--orange)", borderRightColor: "transparent", borderRadius: "50%" }} />
@@ -58,7 +68,7 @@ const EndpointScreen = () => {
             )}
           </div>
           {phase === "live" && (
-            <div style={{ display: "flex", gap: 16, marginTop: 8, fontSize: 12, color: "var(--ink-soft)" }}>
+            <div style={{ display: "flex", gap: 12, marginTop: 8, fontSize: 12, color: "var(--ink-soft)", flexWrap: "wrap", alignItems: "center" }}>
               <span>Uptime <strong style={{ color: "#000", fontFamily: "var(--font-mono)" }}>{fmtUptime(uptime)}</strong></span>
               <span>·</span>
               <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
@@ -66,12 +76,13 @@ const EndpointScreen = () => {
                   <span style={{ display: "inline-block", width: 4, height: 8, background: "#fff" }} />
                   <span style={{ display: "inline-block", width: 4, height: 8, background: "#EF4135" }} />
                 </span>
-                Paris Gcore PA-1
+                {depPops.length > 1 ? `${depPops.length} sites · ${depPops.map(p => p.city).join(" · ")}` : primaryPop.site}
               </span>
               <span>·</span>
-              <span>1× H100 80GB</span>
+              <span>{depHw.count || 1}× {depHw.gpu || "H100"} {depHw.vram || 80}GB</span>
+              {depCfg.dynamo && <><span>·</span><span className="chip" style={{ fontSize: 10, background: "rgba(118,185,0,0.14)", color: "#4d7c00" }}><Icon name="cpu" size={10} />Dynamo</span></>}
               <span>·</span>
-              <span className="chip chip-eu" style={{ fontSize: 10 }}><EUFlag size={10} />Sovereign</span>
+              <span className="chip chip-eu" style={{ fontSize: 10 }}><EUFlag size={10} />Sovereign {sov.score}/100</span>
             </div>
           )}
         </div>
@@ -96,10 +107,10 @@ const EndpointScreen = () => {
 
       {/* KPI grid */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12, marginBottom: 16 }}>
-        <KPI label="Avg. latency (Paris)" value={phase === "live" ? "84" : "—"} unit="ms" hint="P50 · vs 100ms target" loading={phase !== "live"} good />
-        <KPI label="Throughput" value={phase === "live" ? "142" : "—"} unit="tok/s" hint="per H100 GPU" loading={phase !== "live"} />
+        <KPI label={`Avg. latency (${primaryPop.city})`} value={phase === "live" ? String(primaryPop.latency ? 80 + primaryPop.latency : 84) : "—"} unit="ms" hint="P50 · vs 100ms target" loading={phase !== "live"} good />
+        <KPI label="Throughput" value={phase === "live" ? String(effTps) : "—"} unit="tok/s" hint={depCfg.dynamo ? `per ${depHw.gpu || "H100"} · Dynamo +35%` : `per ${depHw.gpu || "H100"} GPU`} loading={phase !== "live"} />
         <KPI label="Requests (last 5min)" value={phase === "live" ? reqCount.toLocaleString() : "—"} unit="" hint="↑ growing" loading={phase !== "live"} animated />
-        <KPI label="Current cost" value="€2.40" unit="/h" hint="H100 bare metal" loading={phase !== "live"} />
+        <KPI label="Current cost" value={`€${((depHw.costPerH || 2.40) * depPops.length).toFixed(2)}`} unit="/h" hint={`${depPops.length}× ${depHw.gpu || "H100"} bare metal`} loading={phase !== "live"} />
       </div>
 
       {/* Tabs */}

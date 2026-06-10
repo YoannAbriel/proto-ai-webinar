@@ -3,16 +3,24 @@ const { useState: useState1, useMemo: useMemo1 } = React;
 
 // ============ Model data ============
 const MODELS = [
-  { id: "mistral-small-24b", name: "Mistral-Small-3-24B-Instruct", org: "Mistral AI", orgColor: "#ff5f00", initial: "M", task: "Text generation", size: "24B", license: "Apache 2.0", downloads: "1.2M", likes: "8.4k", updated: "3 days ago", featured: true, ctx: "32k tokens", precision: "bf16", weight: "47 GB" },
-  { id: "llama-3-8b",       name: "Meta-Llama-3-8B-Instruct",      org: "Meta",        orgColor: "#0866ff", initial: "M", task: "Text generation", size: "8B",  license: "Llama 3",   downloads: "4.8M", likes: "12.1k", updated: "1 week ago" },
+  { id: "mistral-small-24b", name: "Mistral-Small-3-24B-Instruct", org: "Mistral AI", orgColor: "#ff5f00", initial: "M", task: "Text generation", size: "24B", license: "Apache 2.0", downloads: "1.2M", likes: "8.4k", updated: "3 days ago", featured: true, ctx: "32k tokens", precision: "bf16", weight: "47 GB", euReady: true },
+  { id: "llama-3-8b",       name: "Meta-Llama-3-8B-Instruct",      org: "Meta",        orgColor: "#0866ff", initial: "M", task: "Text generation", size: "8B",  license: "Llama 3",   downloads: "4.8M", likes: "12.1k", updated: "1 week ago", euReady: true },
   { id: "qwen-2-5-72b",     name: "Qwen2.5-72B-Instruct",          org: "Qwen / Alibaba", orgColor: "#9333ea", initial: "Q", task: "Text generation", size: "72B", license: "Qwen", downloads: "892k", likes: "5.1k", updated: "2 days ago" },
-  { id: "bge-m3",           name: "bge-m3",                         org: "BAAI",        orgColor: "#16a34a", initial: "B", task: "Embeddings",      size: "560M", license: "MIT",       downloads: "3.4M", likes: "2.8k", updated: "2 months ago" },
-  { id: "phi-3-mini",       name: "Phi-3-mini-4k-instruct",         org: "Microsoft",   orgColor: "#0078d4", initial: "M", task: "Text generation", size: "3.8B", license: "MIT",      downloads: "2.1M", likes: "4.6k", updated: "1 month ago" },
-  { id: "whisper-l3",       name: "whisper-large-v3",               org: "OpenAI",      orgColor: "#10a37f", initial: "O", task: "Audio",           size: "1.5B", license: "MIT",      downloads: "8.7M", likes: "9.8k", updated: "4 months ago" },
-  { id: "llava-next",       name: "llava-v1.6-mistral-7b",          org: "LLaVA",       orgColor: "#dc2626", initial: "L", task: "Vision",          size: "7B",   license: "Apache 2.0", downloads: "412k", likes: "1.9k", updated: "2 weeks ago" },
+  { id: "bge-m3",           name: "bge-m3",                         org: "BAAI",        orgColor: "#16a34a", initial: "B", task: "Embeddings",      size: "560M", license: "MIT",       downloads: "3.4M", likes: "2.8k", updated: "2 months ago", euReady: true },
+  { id: "phi-3-mini",       name: "Phi-3-mini-4k-instruct",         org: "Microsoft",   orgColor: "#0078d4", initial: "M", task: "Text generation", size: "3.8B", license: "MIT",      downloads: "2.1M", likes: "4.6k", updated: "1 month ago", euReady: true },
+  { id: "whisper-l3",       name: "whisper-large-v3",               org: "OpenAI",      orgColor: "#10a37f", initial: "O", task: "Audio",           size: "1.5B", license: "MIT",      downloads: "8.7M", likes: "9.8k", updated: "4 months ago", euReady: true },
+  { id: "llava-next",       name: "llava-v1.6-mistral-7b",          org: "LLaVA",       orgColor: "#dc2626", initial: "L", task: "Vision",          size: "7B",   license: "Apache 2.0", downloads: "412k", likes: "1.9k", updated: "2 weeks ago", euReady: true },
   { id: "codellama-34b",    name: "CodeLlama-34b-Instruct-hf",      org: "Meta",        orgColor: "#0866ff", initial: "M", task: "Text generation", size: "34B",  license: "Llama 2",  downloads: "654k", likes: "3.2k", updated: "1 month ago" },
-  { id: "mxbai-embed",      name: "mxbai-embed-large-v1",           org: "mixedbread",  orgColor: "#ca8a04", initial: "m", task: "Embeddings",      size: "335M", license: "Apache 2.0", downloads: "987k", likes: "1.4k", updated: "3 weeks ago" },
+  { id: "mxbai-embed",      name: "mxbai-embed-large-v1",           org: "mixedbread",  orgColor: "#ca8a04", initial: "m", task: "Embeddings",      size: "335M", license: "Apache 2.0", downloads: "987k", likes: "1.4k", updated: "3 weeks ago", euReady: true },
 ];
+
+// Parse a HuggingFace-style size string ("560M", "24B") into billions of params.
+const sizeToB = (s) => {
+  const n = parseFloat(s);
+  return /m/i.test(s) ? n / 1000 : n;
+};
+// Carbon for 1M tokens served on the French (low-carbon) grid — drives the card + the filter.
+const modelCarbonFR = (id) => (window.gco2PerMtok ? window.gco2PerMtok(id, "FR") : 0);
 
 const RECOMMENDED = [
   { id: "mistral-small-24b", name: "Mistral-Small-3-24B", org: "Mistral AI", note: "Sovereign · Native French" },
@@ -22,15 +30,39 @@ const RECOMMENDED = [
 ];
 
 // ============ Screen 1: Catalogue ============
+const SIZE_OPTIONS = { "Any size": Infinity, "≤ 8B": 8, "≤ 34B": 34, "≤ 70B": 70 };
+const LICENSE_OPTIONS = ["All licenses", "Apache 2.0", "MIT", "Llama", "Qwen"];
+const TASK_OPTIONS = ["All tasks", "Text generation", "Embeddings", "Vision", "Audio"];
+
 const CatalogueScreen = () => {
-  const { go } = useNav();
+  const { openModel } = useNav();
   const [filters, setFilters] = useState1({
-    task: "Text generation",
+    task: "All tasks",
+    license: "All licenses",
+    size: "Any size",
     bareMetalOnly: true,
     euOptimized: false,
-    sizeMax: 70,
+    lowCarbon: false,
   });
   const [search, setSearch] = useState1("");
+
+  // Real filtering — search + every chip now narrows the grid.
+  const filtered = useMemo1(() => {
+    const q = search.trim().toLowerCase();
+    const sizeCap = SIZE_OPTIONS[filters.size] ?? Infinity;
+    return MODELS.filter(m => {
+      if (q && !(`${m.name} ${m.org} ${m.task}`.toLowerCase().includes(q))) return false;
+      if (filters.task !== "All tasks" && m.task !== filters.task) return false;
+      if (filters.license !== "All licenses" && !m.license.toLowerCase().startsWith(filters.license.toLowerCase())) return false;
+      if (sizeToB(m.size) > sizeCap) return false;
+      if (filters.euOptimized && !m.euReady) return false;
+      if (filters.lowCarbon && modelCarbonFR(m.id) > 150) return false;
+      return true;
+    });
+  }, [search, filters]);
+
+  // Sovereignty index reacts to what the operator narrows to.
+  const sovScore = filtered.length ? Math.round(filtered.reduce((s, m) => s + (m.euReady ? 99 : 92), 0) / filtered.length) : 0;
 
   return (
     <div className="fade-in">
@@ -68,13 +100,14 @@ const CatalogueScreen = () => {
           </div>
           <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
             <span style={{ fontSize: 11, fontWeight: 700, color: "var(--ink-faint)", textTransform: "uppercase", letterSpacing: "0.06em", marginRight: 4 }}>Filters</span>
-            <FilterChip label="Task" value={filters.task} options={["Text generation", "Embeddings", "Vision", "Audio"]} onChange={v => setFilters(f => ({ ...f, task: v }))} />
-            <FilterChip label="Size" value={`1B → ${filters.sizeMax}B+`} />
-            <FilterChip label="License" value="Apache 2.0, MIT…" />
+            <FilterChip label="Task" value={filters.task} options={TASK_OPTIONS} onChange={v => setFilters(f => ({ ...f, task: v }))} />
+            <FilterChip label="Size" value={filters.size} options={Object.keys(SIZE_OPTIONS)} onChange={v => setFilters(f => ({ ...f, size: v }))} />
+            <FilterChip label="License" value={filters.license} options={LICENSE_OPTIONS} onChange={v => setFilters(f => ({ ...f, license: v }))} />
             <ToggleChip label="Bare metal Gcore compatible" on={filters.bareMetalOnly} onClick={() => setFilters(f => ({ ...f, bareMetalOnly: !f.bareMetalOnly }))} />
             <ToggleChip label="EU-optimised" on={filters.euOptimized} onClick={() => setFilters(f => ({ ...f, euOptimized: !f.euOptimized }))} />
+            <ToggleChip label="Low carbon" icon="leaf" on={filters.lowCarbon} onClick={() => setFilters(f => ({ ...f, lowCarbon: !f.lowCarbon }))} />
             <span style={{ marginLeft: "auto", fontSize: 12, color: "var(--ink-faint)" }}>
-              <strong style={{ color: "#000" }}>2,847</strong> compatible models
+              <strong style={{ color: "#000" }}>{filtered.length}</strong> of {MODELS.length} models
             </span>
           </div>
         </div>
@@ -83,7 +116,12 @@ const CatalogueScreen = () => {
       {/* Layout: cards take primary, recommendations drop to bottom strip */}
       <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 300px", gap: 20, alignItems: "start" }}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 14 }}>
-          {MODELS.map(m => <ModelCard key={m.id} m={m} onOpen={() => go("detail")} />)}
+          {filtered.length === 0 && (
+            <div className="panel" style={{ padding: 32, textAlign: "center", color: "var(--ink-faint)", gridColumn: "1 / -1" }}>
+              No model matches these filters. <button onClick={() => { setSearch(""); setFilters({ task: "All tasks", license: "All licenses", size: "Any size", bareMetalOnly: true, euOptimized: false, lowCarbon: false }); }} style={{ background: "none", border: 0, color: "var(--orange)", fontWeight: 700, cursor: "pointer", fontFamily: "inherit", fontSize: 13 }}>Reset filters</button>
+            </div>
+          )}
+          {filtered.map(m => <ModelCard key={m.id} m={m} onOpen={() => openModel(m.id)} />)}
         </div>
 
         {/* Recommended */}
@@ -98,7 +136,7 @@ const CatalogueScreen = () => {
             </div>
             <div>
               {RECOMMENDED.map((r, i) => (
-                <div key={r.id} onClick={() => go("detail")} style={{
+                <div key={r.id} onClick={() => openModel(r.id)} style={{
                   padding: "14px 18px",
                   display: "flex", gap: 12, alignItems: "center",
                   borderBottom: i < RECOMMENDED.length - 1 ? "1px solid var(--line)" : 0,
@@ -116,15 +154,18 @@ const CatalogueScreen = () => {
           </div>
 
           <div className="panel" style={{ padding: 18 }}>
-            <div className="kicker" style={{ color: "var(--ink-faint)" }}>Sovereignty index</div>
+            <div className="kicker" style={{ color: "var(--ink-faint)", display: "flex", alignItems: "center", gap: 6 }}>
+              <Icon name="gauge" size={13} className="" style={{ color: "var(--orange)" }} />
+              Sovereignty index
+            </div>
             <div style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.02em", margin: "4px 0" }}>
-              98<span style={{ fontSize: 14, color: "var(--ink-faint)" }}>/100</span>
+              {sovScore}<span style={{ fontSize: 14, color: "var(--ink-faint)" }}>/100</span>
             </div>
             <div style={{ height: 6, background: "var(--color-grey-200)", marginBottom: 8 }}>
-              <div style={{ width: "98%", height: "100%", background: "var(--orange)" }} />
+              <div style={{ width: `${sovScore}%`, height: "100%", background: "var(--orange)", transition: "width var(--dur-base)" }} />
             </div>
             <div style={{ fontSize: 12, color: "var(--ink-soft)" }}>
-              2,847 models deployable on Gcore EU. 41 non-compliant models filtered out.
+              {filtered.length} model{filtered.length === 1 ? "" : "s"} deployable on Gcore EU bare metal · keys in EU HSM, outside the US Cloud Act.
             </div>
           </div>
         </div>
@@ -133,23 +174,51 @@ const CatalogueScreen = () => {
   );
 };
 
-const FilterChip = ({ label, value, options }) => (
-  <button style={{
-    background: "#fff",
-    border: "1px solid var(--color-grey-500)",
-    padding: "6px 12px",
-    fontSize: 12, fontWeight: 500,
-    cursor: "pointer",
-    display: "inline-flex", alignItems: "center", gap: 6,
-    fontFamily: "inherit",
-  }}>
-    <span style={{ color: "var(--ink-faint)" }}>{label}:</span>
-    <strong style={{ color: "#000", fontWeight: 700 }}>{value}</strong>
-    <Icon name="chevronDown" size={12} />
-  </button>
-);
+const FilterChip = ({ label, value, options, onChange }) => {
+  const [open, setOpen] = useState1(false);
+  const active = value && !/^(All|Any)/.test(value);
+  return (
+    <div style={{ position: "relative" }}>
+      <button onClick={() => setOpen(o => !o)} style={{
+        background: active ? "rgba(255,121,0,0.08)" : "#fff",
+        border: `1px solid ${active ? "var(--orange)" : "var(--color-grey-500)"}`,
+        padding: "6px 12px",
+        fontSize: 12, fontWeight: 500,
+        cursor: "pointer",
+        display: "inline-flex", alignItems: "center", gap: 6,
+        fontFamily: "inherit",
+      }}>
+        <span style={{ color: "var(--ink-faint)" }}>{label}:</span>
+        <strong style={{ color: active ? "var(--orange)" : "#000", fontWeight: 700 }}>{value}</strong>
+        <Icon name="chevronDown" size={12} />
+      </button>
+      {open && options && (
+        <>
+          <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 19 }} />
+          <div style={{
+            position: "absolute", top: "calc(100% + 4px)", left: 0, zIndex: 20,
+            background: "#fff", border: "1px solid var(--color-grey-500)",
+            boxShadow: "var(--shadow-md)", minWidth: 160, padding: 4,
+          }}>
+            {options.map(opt => (
+              <button key={opt} onClick={() => { onChange && onChange(opt); setOpen(false); }} style={{
+                display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10,
+                width: "100%", textAlign: "left", background: opt === value ? "var(--color-grey-100)" : "transparent",
+                border: 0, padding: "8px 10px", fontSize: 13, fontFamily: "inherit",
+                color: "#000", cursor: "pointer", fontWeight: opt === value ? 700 : 500,
+              }}>
+                {opt}
+                {opt === value && <Icon name="check" size={12} style={{ color: "var(--orange)" }} />}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
 
-const ToggleChip = ({ label, on, onClick }) => (
+const ToggleChip = ({ label, on, onClick, icon }) => (
   <button onClick={onClick} style={{
     background: on ? "rgba(255,121,0,0.1)" : "#fff",
     border: `1px solid ${on ? "var(--orange)" : "var(--color-grey-500)"}`,
@@ -168,6 +237,7 @@ const ToggleChip = ({ label, on, onClick }) => (
     }}>
       {on && <Icon name="check" size={10} className="" />}
     </span>
+    {icon && <Icon name={icon} size={13} />}
     {label}
   </button>
 );
@@ -198,6 +268,16 @@ const ModelCard = ({ m, onOpen }) => (
       <span className="chip chip-outline">{m.size}</span>
       <span className="chip chip-outline">{m.license}</span>
     </div>
+    <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 11, color: "var(--ink-faint)", flexWrap: "wrap" }}>
+      <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }} title="Recommended Gcore hardware">
+        <Icon name="cpu" size={12} />
+        {window.hwLabelFull ? window.hwLabelFull(m.id) : "1× H100 80GB"}
+      </span>
+      <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "#1e8e1e" }} title="CO₂ per 1M tokens on the French low-carbon grid">
+        <Icon name="leaf" size={12} />
+        {modelCarbonFR(m.id)} g/Mtok
+      </span>
+    </div>
     <div style={{ display: "flex", gap: 12, fontSize: 11, color: "var(--ink-faint)" }}>
       <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
         <Icon name="download" size={11} />
@@ -224,8 +304,9 @@ const ModelCard = ({ m, onOpen }) => (
 
 // ============ Screen 2: Model Detail ============
 const DetailScreen = () => {
-  const { go } = useNav();
-  const m = MODELS[0];
+  const { go, modelId } = useNav();
+  const m = MODELS.find(x => x.id === modelId) || MODELS[0];
+  const hw = window.hwFor ? window.hwFor(m.id) : { costPerH: 2.40 };
   const [tab, setTab] = useState1("overview");
 
   return (
@@ -243,7 +324,7 @@ const DetailScreen = () => {
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 12, color: "var(--ink-faint)", marginBottom: 4, display: "flex", alignItems: "center", gap: 6 }}>
                 <HuggingFaceIcon size={14} />
-                {m.org} · <a href="#" style={{ color: "var(--ink-faint)" }}>huggingface.co/mistralai/Mistral-Small-3-24B-Instruct</a>
+                {m.org} · <a href="#" style={{ color: "var(--ink-faint)" }}>huggingface.co/{m.name}</a>
               </div>
               <h1 style={{ fontSize: 28, fontWeight: 700, margin: 0, letterSpacing: "-0.01em" }}>{m.name}</h1>
               <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
@@ -282,7 +363,7 @@ const DetailScreen = () => {
           </div>
 
           {/* Tab content */}
-          {tab === "overview" && <DetailOverview />}
+          {tab === "overview" && <DetailOverview m={m} />}
           {tab === "modelcard" && <DetailModelCard />}
           {tab === "files" && <DetailFiles />}
           {tab === "benchmark" && <DetailBenchmark />}
@@ -310,7 +391,7 @@ const DetailScreen = () => {
 
           <DeployField label="Instance type">
             <div style={{ padding: "10px 12px", border: "1px solid var(--color-grey-500)", background: "#fff", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: 13, fontWeight: 700 }}>H100 bare metal</span>
+              <span style={{ fontSize: 13, fontWeight: 700 }}>{hw.gpu} bare metal</span>
               <Icon name="chevronDown" size={12} />
             </div>
           </DeployField>
@@ -322,7 +403,7 @@ const DetailScreen = () => {
             </div>
             <div>
               <div className="faint" style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>Active cost</div>
-              <div style={{ fontWeight: 700 }}>€2.40/h</div>
+              <div style={{ fontWeight: 700 }}>€{hw.costPerH.toFixed(2)}/h</div>
             </div>
             <div style={{ gridColumn: "1 / -1", paddingTop: 8, borderTop: "1px solid var(--line)" }}>
               <span className="chip chip-success" style={{ fontSize: 10 }}>

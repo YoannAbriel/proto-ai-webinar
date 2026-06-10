@@ -26,6 +26,9 @@ const App = () => {
   // Read initial screen from URL hash for shareable deep-links
   const initial = (window.location.hash || "").replace("#/", "").replace("#", "");
   const [screen, setScreen] = useStateA(SCREENS[initial] ? initial : "catalogue");
+  // Currently-selected model — drives Detail / Deploy / Endpoint so they're no
+  // longer hardcoded to Mistral.
+  const [modelId, setModelId] = useStateA("mistral-small-24b");
 
   const go = useCallbackA((next) => {
     if (!SCREENS[next]) return;
@@ -33,6 +36,12 @@ const App = () => {
     window.history.replaceState(null, "", `#/${next}`);
     document.querySelector(".main")?.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
+
+  // Pick a model and jump to a screen in one call (defaults to the detail page).
+  const openModel = useCallbackA((id, next = "detail") => {
+    if (id) setModelId(id);
+    go(next);
+  }, [go]);
 
   // Hotkeys: ←/→ to navigate, 1-6 for direct jump (silent, no UI)
   useEffectA(() => {
@@ -52,7 +61,7 @@ const App = () => {
   const Current = SCREENS[screen] || CatalogueScreen;
 
   return (
-    <NavCtx.Provider value={{ screen, go }}>
+    <NavCtx.Provider value={{ screen, go, modelId, setModelId, openModel }}>
       <div data-screen-label={SCREEN_LABELS[screen]}>
         <Shell>
           <Current />

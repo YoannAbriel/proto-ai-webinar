@@ -48,7 +48,9 @@ const MonitoringScreen = () => {
         <BigKPI label="P99 latency"          value={`${158 + (tick % 12)} ms`}                              delta="+8 ms" trend="up" warn />
         <BigKPI label="Token throughput"     value={`${(1840 + (tick * 3 % 90)).toLocaleString()} tok/s`}   delta="+4%" trend="up" />
         <BigKPI label="GPU utilisation"      value={`${62 + (tick % 9)}%`}                                  delta="+3 pp" trend="up" />
+        <BigKPI label="KV cache · Dynamo"    value={`${72 + (tick % 3)}%`}                                  delta="reuse · +35% tok/s" trend="up" good />
         <BigKPI label="Cost burn (today)"    value={`€${(57.6 + tick * 0.04).toFixed(2)}`}                  delta="of €60/day cap" trend="flat" />
+        <BigKPI label="Carbon (today)"       value={`${(96 + tick * 0.06).toFixed(0)} g`}                   delta="7× < German grid" trend="flat" good />
       </div>
 
       {/* Charts row */}
@@ -98,6 +100,28 @@ const MonitoringScreen = () => {
           areaColor="rgba(92,78,229,0.1)"
           range={[0, 60]}
           fillUp
+        />
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", gap: 16, marginBottom: 16 }}>
+        <ChartPanel
+          title="Carbon footprint"
+          subtitle="cumulative · today · gCO₂e · France grid"
+          unit="g"
+          series={series.carbon}
+          color="#1e8e1e"
+          areaColor="rgba(50,200,50,0.1)"
+          range={[0, 120]}
+          fillUp
+        />
+        <ChartPanel
+          title="KV cache reuse · NVIDIA Dynamo"
+          subtitle="disaggregated serving · % tokens reused"
+          unit="%"
+          series={series.kv}
+          color="#76b900"
+          areaColor="rgba(118,185,0,0.12)"
+          range={[0, 100]}
         />
       </div>
 
@@ -419,8 +443,12 @@ function buildSeries(range, tick) {
   const gpu = Array.from({ length: N }, (_, i) => 58 + 14 * noise(i, 4) + (i === N - 1 ? tick % 6 : 0));
   // Cost: cumulative ramping up to ~57
   const cost = Array.from({ length: N }, (_, i) => (i / (N - 1)) * 57 + 0.5 * Math.sin(i * 0.3));
+  // Carbon: cumulative gCO2e on the French low-carbon grid (~80 g/Mtok), tracks cost shape
+  const carbon = Array.from({ length: N }, (_, i) => (i / (N - 1)) * 96 + 0.8 * Math.sin(i * 0.3));
+  // KV cache reuse %: 65-80 (NVIDIA Dynamo)
+  const kv = Array.from({ length: N }, (_, i) => 70 + 6 * noise(i, 6) + (i === N - 1 ? tick % 3 : 0));
 
-  return { rps, lat50, lat99, gpu, cost };
+  return { rps, lat50, lat99, gpu, cost, carbon, kv };
 }
 
 Object.assign(window, { MonitoringScreen });

@@ -176,17 +176,7 @@ const EndpointMetrics = () => {
           ))}
         </div>
 
-        <div className="panel" style={{ padding: 18 }}>
-          <h3 style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--ink-soft)", margin: "0 0 12px" }}>KV cache</h3>
-          <div style={{ fontSize: 24, fontWeight: 700, fontFamily: "var(--font-mono)", marginBottom: 4 }}>72.4<span style={{ fontSize: 12, color: "var(--ink-faint)" }}>%</span></div>
-          <div style={{ fontSize: 11, color: "var(--ink-soft)", marginBottom: 12 }}>Reuse rate · last hour</div>
-          <div style={{ height: 6, background: "var(--color-grey-200)" }}>
-            <div style={{ width: "72%", height: "100%", background: "var(--orange)" }} />
-          </div>
-          <div style={{ marginTop: 10, fontSize: 11, color: "var(--ink-faint)" }}>
-            Saves ~38% of prefill cost. Cache is replicated to all 14 POPs.
-          </div>
-        </div>
+        <DynamoPanel />
 
         <div className="panel" style={{ padding: 18 }}>
           <h3 style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--ink-soft)", margin: "0 0 12px" }}>Cost burn (today)</h3>
@@ -200,9 +190,71 @@ const EndpointMetrics = () => {
           </div>
         </div>
       </div>
+
+      <EnergyCarbonPanel />
     </>
   );
 };
+
+// NVIDIA Dynamo — disaggregated serving + KV-cache reuse (replaces the old KV panel)
+const DynamoPanel = () => {
+  const D = window.DYNAMO || { kvReusePct: 72, prefillMs: 11, decodeMsPerTok: 3.1, tokpsGainPct: 35 };
+  return (
+    <div className="panel" style={{ padding: 18, borderTop: "3px solid #76b900" }}>
+      <h3 style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--ink-soft)", margin: "0 0 10px", display: "flex", alignItems: "center", gap: 6 }}>
+        <Icon name="cpu" size={14} style={{ color: "#76b900" }} /> NVIDIA Dynamo
+      </h3>
+      <div style={{ fontSize: 24, fontWeight: 700, fontFamily: "var(--font-mono)", marginBottom: 4 }}>{D.kvReusePct}.4<span style={{ fontSize: 12, color: "var(--ink-faint)" }}>%</span></div>
+      <div style={{ fontSize: 11, color: "var(--ink-soft)", marginBottom: 12 }}>KV cache reuse · last hour</div>
+      <div style={{ height: 6, background: "var(--color-grey-200)" }}>
+        <div style={{ width: `${D.kvReusePct}%`, height: "100%", background: "#76b900" }} />
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 12, fontSize: 11 }}>
+        <div><div className="faint" style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.05em" }}>Prefill</div><strong className="mono">{D.prefillMs} ms</strong></div>
+        <div><div className="faint" style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.05em" }}>Decode</div><strong className="mono">{D.decodeMsPerTok} ms/tok</strong></div>
+      </div>
+      <div style={{ marginTop: 10, fontSize: 11, color: "var(--ink-faint)" }}>
+        Disaggregated prefill/decode · +{D.tokpsGainPct}% throughput. Cache replicated to all 14 POPs.
+      </div>
+    </div>
+  );
+};
+
+// Energy & carbon — France grid vs the same model on the German grid.
+const EnergyCarbonPanel = () => {
+  const fr = window.gco2PerMtok ? window.gco2PerMtok("mistral-small-24b", "FR", true) : 60;
+  const de = window.gco2PerMtok ? window.gco2PerMtok("mistral-small-24b", "DE", true) : 410;
+  const ratio = Math.max(1, Math.round(de / Math.max(fr, 1)));
+  return (
+    <div className="panel" style={{ padding: 18, marginBottom: 16 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+        <h3 style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--ink-soft)", margin: 0, display: "flex", alignItems: "center", gap: 6 }}>
+          <Icon name="leaf" size={14} style={{ color: "#1e8e1e" }} /> Energy &amp; carbon
+        </h3>
+        <span className="chip chip-success" style={{ fontSize: 10 }}>{ratio}× cleaner in France</span>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 16 }}>
+        <CarbonStat label="This deployment · Paris" value={fr} unit="g CO₂e/Mtok" color="#1e8e1e" max={de} good />
+        <CarbonStat label="Same model · Frankfurt" value={de} unit="g CO₂e/Mtok" color="var(--color-grey-700)" max={de} />
+        <div>
+          <div className="faint" style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>Today (1.2M tok served)</div>
+          <div style={{ fontSize: 20, fontWeight: 700, fontFamily: "var(--font-mono)", color: "#1e8e1e" }}>{(fr * 1.2 / 1000).toFixed(2)} kg</div>
+          <div className="faint" style={{ fontSize: 11 }}>vs {(de * 1.2 / 1000).toFixed(2)} kg on the German grid</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const CarbonStat = ({ label, value, unit, color, max, good }) => (
+  <div>
+    <div className="faint" style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>{label}</div>
+    <div style={{ fontSize: 20, fontWeight: 700, fontFamily: "var(--font-mono)", color }}>{value} <span style={{ fontSize: 11, color: "var(--ink-faint)", fontWeight: 400 }}>{unit}</span></div>
+    <div style={{ height: 5, background: "var(--color-grey-200)", marginTop: 6 }}>
+      <div style={{ width: `${Math.min(100, (value / (max || value)) * 100)}%`, height: "100%", background: color }} />
+    </div>
+  </div>
+);
 
 const MiniChart = ({ title, subtitle, current, series, series2, color, color2, areaColor, max, legend }) => {
   const w = 480, h = 110;

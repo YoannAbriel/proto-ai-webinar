@@ -2,13 +2,20 @@
 const { useState: useStateD } = React;
 
 // ============ Tab: Overview (existing content, cleaned) ============
-const DetailOverview = () => (
+const DetailOverview = ({ m }) => {
+  const model = m || (window.MODELS && window.MODELS[0]) || {};
+  const hw = window.hwFor ? window.hwFor(model.id) : { gpu: "H100", count: 1, vram: 80, alt: "2× L40S 48GB", costPerH: 2.40, weightGb: 47, ctx: "32k", precision: "bf16" };
+  const carbonFR = window.gco2PerMtok ? window.gco2PerMtok(model.id, "FR") : 77;
+  const carbonDE = window.gco2PerMtok ? window.gco2PerMtok(model.id, "DE") : 521;
+  const isMistral = model.id === "mistral-small-24b";
+  const desc = isMistral
+    ? "Mistral-Small-3 is a 24-billion parameter instruct model from Mistral AI, optimised for European languages and enterprise tasks. Strong on internal assistance, sovereign RAG and document summarisation. Native bf16 quantisation, 32k token context window, native function calling."
+    : `${model.name} is a ${model.size} ${(model.task || "").toLowerCase()} model from ${model.org}. Deployable on sovereign Gcore EU bare metal with strict data isolation, served at the edge across the Orange network.`;
+  return (
   <>
     <div className="panel" style={{ padding: 24, marginBottom: 16 }}>
       <h3 className="detail-h3">Description</h3>
-      <p style={{ margin: 0, lineHeight: 1.6 }}>
-        Mistral-Small-3 is a 24-billion parameter instruct model from Mistral AI, optimised for European languages and enterprise tasks. Strong on internal assistance, sovereign RAG and document summarisation. Native bf16 quantisation, 32k token context window, native function calling.
-      </p>
+      <p style={{ margin: 0, lineHeight: 1.6 }}>{desc}</p>
     </div>
 
     <div className="grid-2" style={{ marginBottom: 16 }}>
@@ -17,11 +24,11 @@ const DetailOverview = () => (
         <table style={{ width: "100%", fontSize: 13, borderCollapse: "collapse" }}>
           <tbody>
             {[
-              ["Parameters", "24B"],
-              ["Context", "32,768 tokens"],
-              ["Precision", "bf16"],
-              ["License", "Apache 2.0"],
-              ["Weight size", "47 GB"],
+              ["Parameters", model.size || "24B"],
+              ["Context", hw.ctx],
+              ["Precision", hw.precision],
+              ["License", model.license || "Apache 2.0"],
+              ["Weight size", `${hw.weightGb} GB`],
               ["Architecture", "Decoder-only transformer"],
             ].map(([k, v]) => (
               <tr key={k} style={{ borderBottom: "1px solid var(--line)" }}>
@@ -41,19 +48,28 @@ const DetailOverview = () => (
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
             <Icon name="server" size={20} />
             <div>
-              <div style={{ fontSize: 14, fontWeight: 700 }}>1× NVIDIA H100 80GB</div>
-              <div style={{ fontSize: 12, color: "var(--ink-faint)" }}>or 2× L40S 48GB</div>
+              <div style={{ fontSize: 14, fontWeight: 700 }}>{hw.count}× NVIDIA {hw.gpu} {hw.vram}GB</div>
+              <div style={{ fontSize: 12, color: "var(--ink-faint)" }}>or {hw.alt}</div>
             </div>
           </div>
           <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 8, borderTop: "1px solid var(--line)" }}>
             <span style={{ fontSize: 12, color: "var(--ink-soft)" }}>Bare metal EU cost</span>
-            <strong style={{ fontSize: 16 }}>€2.40<span style={{ fontSize: 11, color: "var(--ink-faint)" }}>/h</span></strong>
+            <strong style={{ fontSize: 16 }}>€{hw.costPerH.toFixed(2)}<span style={{ fontSize: 11, color: "var(--ink-faint)" }}>/h</span></strong>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 8, marginTop: 8, borderTop: "1px solid var(--line)" }}>
+            <span style={{ fontSize: 12, color: "var(--ink-soft)", display: "inline-flex", alignItems: "center", gap: 5 }}>
+              <Icon name="leaf" size={13} style={{ color: "#1e8e1e" }} /> Carbon · France grid
+            </span>
+            <strong style={{ fontSize: 14, color: "#1e8e1e" }}>{carbonFR} g<span style={{ fontSize: 11, color: "var(--ink-faint)" }}>/Mtok</span></strong>
+          </div>
+          <div style={{ fontSize: 11, color: "var(--ink-faint)", marginTop: 4 }}>
+            {Math.round(carbonDE / Math.max(carbonFR, 1))}× lower than the same model on the German grid ({carbonDE} g/Mtok).
           </div>
         </div>
         <ul style={{ margin: "12px 0 0", padding: "0 0 0 18px", fontSize: 12, color: "var(--ink-soft)" }}>
           <li>Provisioning ~3 min in France</li>
           <li>Scale-to-zero available</li>
-          <li>vLLM + Triton optimised</li>
+          <li>vLLM + NVIDIA Dynamo optimised</li>
         </ul>
       </div>
     </div>
@@ -81,7 +97,8 @@ const DetailOverview = () => (
       ))}
     </div>
   </>
-);
+  );
+};
 
 // ============ Tab: Model card (HuggingFace-style markdown) ============
 const DetailModelCard = () => (

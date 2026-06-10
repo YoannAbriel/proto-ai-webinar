@@ -5,7 +5,9 @@ const { useState: useStateG, useEffect: useEffectG, useRef: useRefG, useMemo: us
 // Coordinates in lon/lat — EUMap projects them via d3-geo to align with the real map.
 // labelDx/labelDy/labelAnchor steer city labels away from each other in dense areas.
 const POPS = [
-  { id: "paris",     city: "Paris",     country: "FR", lon: 2.35,  lat: 48.86, hub: true,  req: "12.4k", lat_ms: 4,  labelDx: -10, labelAnchor: "end", labelDy: -8 },
+  { id: "paris",     city: "Paris",     country: "FR", lon: 2.35,  lat: 48.86, hub: true, deploy: true, req: "12.4k", lat_ms: 4,  labelDx: -10, labelAnchor: "end", labelDy: -8 },
+  { id: "oslo",      city: "Oslo",      country: "NO", lon: 10.75, lat: 59.91, deploy: true, req: "1.4k",  lat_ms: 6,  labelDx: 8,  labelDy: 4 },
+  { id: "stockholm", city: "Stockholm", country: "SE", lon: 18.07, lat: 59.33, deploy: true, req: "1.6k",  lat_ms: 7,  labelDx: 8,  labelDy: 4 },
   { id: "lyon",      city: "Lyon",      country: "FR", lon: 4.85,  lat: 45.76, req: "3.2k",  lat_ms: 12, labelDx: -8,  labelAnchor: "end", labelDy: 4 },
   { id: "marseille", city: "Marseille", country: "FR", lon: 5.37,  lat: 43.3,  req: "2.1k",  lat_ms: 14, labelDx: -8,  labelAnchor: "end", labelDy: 4 },
   { id: "madrid",    city: "Madrid",    country: "ES", lon: -3.7,  lat: 40.4,  req: "2.8k",  lat_ms: 18, labelDy: 14 },
@@ -17,7 +19,7 @@ const POPS = [
   { id: "amsterdam", city: "Amsterdam", country: "NL", lon: 4.9,   lat: 52.37, req: "2.7k",  lat_ms: 10, labelDx: -8, labelAnchor: "end", labelDy: -4 },
   { id: "frankfurt", city: "Frankfurt", country: "DE", lon: 8.68,  lat: 50.11, req: "3.5k",  lat_ms: 9,  labelDy: -4 },
   { id: "munich",    city: "Munich",    country: "DE", lon: 11.58, lat: 48.14, req: "2.2k",  lat_ms: 13, labelDy: 14 },
-  { id: "berlin",    city: "Berlin",    country: "DE", lon: 13.4,  lat: 52.52, req: "2.9k",  lat_ms: 14, labelDy: -6 },
+  { id: "berlin",    city: "Berlin",    country: "DE", lon: 13.4,  lat: 52.52, deploy: true, req: "2.9k",  lat_ms: 14, labelDy: -6 },
   { id: "warsaw",    city: "Warsaw",    country: "PL", lon: 21.0,  lat: 52.23, req: "1.3k",  lat_ms: 21 },
 ];
 
@@ -47,6 +49,10 @@ const USERS = [
   { id: "u-amsterdam", lon: 4.9,   lat: 52.4, near: "amsterdam" },
   { id: "u-brussels",  lon: 4.4,   lat: 50.8, near: "brussels"  },
   { id: "u-london",    lon: -0.1,  lat: 51.5, near: "brussels"  },
+  { id: "u-oslo",      lon: 10.8,  lat: 59.9, near: "oslo"      },
+  { id: "u-stockholm", lon: 18.1,  lat: 59.3, near: "stockholm" },
+  { id: "u-copenhagen",lon: 12.6,  lat: 55.7, near: "stockholm" },
+  { id: "u-gothenburg",lon: 12.0,  lat: 57.7, near: "oslo"      },
 ];
 
 // ============ Screen 5: AI Grid ============
@@ -64,7 +70,7 @@ const GridScreen = () => {
           Orange AI Grid — Edge token routing
         </h1>
         <p style={{ fontSize: 15, color: "var(--ink-soft)", margin: 0, maxWidth: 900, lineHeight: 1.5 }}>
-          Your model is deployed in <strong style={{ color: "#000" }}>Paris</strong>, but served from <strong style={{ color: "#000" }}>14 Orange edge POPs across Europe</strong>. Every request is routed to the POP closest to the end user — never outside the EU. <span style={{ color: "var(--orange)", fontWeight: 600 }}>Click any POP to drill down.</span>
+          Your model runs bare-metal across the <strong style={{ color: "#000" }}>Cloud Avenue regions — Paris, Oslo, Stockholm and Berlin</strong>, and is served from <strong style={{ color: "#000" }}>Orange edge POPs across Europe</strong>. Every request is routed to the POP closest to the end user — never outside the EU. <span style={{ color: "var(--orange)", fontWeight: 600 }}>Click any POP to drill down.</span>
         </p>
       </div>
 
@@ -123,6 +129,9 @@ const PopDetailPanel = ({ popId, onClose }) => {
   const pop = POPS.find(p => p.id === popId);
   if (!pop) return null;
 
+  const isDeploy = pop.hub || pop.deploy;            // runs the model bare metal
+  const carbon = (window.CARBON_INTENSITY || {})[pop.country] || 250;
+
   // Per-POP details — deterministic by ID so reopening shows same numbers
   const seed = popId.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
   const r = (n) => (Math.sin(seed * n) + 1) / 2; // 0..1
@@ -132,11 +141,11 @@ const PopDetailPanel = ({ popId, onClose }) => {
     p50: pop.lat_ms,
     p99: pop.lat_ms + Math.round(15 + r(2) * 25),
     cacheHit: 68 + Math.round(r(3) * 22),
-    capacity: pop.hub ? 248 : Math.round(40 + r(4) * 60),
+    capacity: pop.hub ? 248 : pop.deploy ? (pop.id === "lyon" ? 64 : 40) : Math.round(40 + r(4) * 60),
     used: 0, // computed below
     uptime: 99.95 + r(5) * 0.05,
     peeringIxps: pop.hub ? ["FranceIX", "AMS-IX", "DE-CIX"] : ["FranceIX", "DE-CIX"].slice(0, 1 + Math.round(r(6) * 1)),
-    cacheRefreshed: pop.hub ? "—" : `${Math.round(r(7) * 28 + 2)} min ago`,
+    cacheRefreshed: isDeploy ? "—" : `${Math.round(r(7) * 28 + 2)} min ago`,
     // Sparkline series (24 points)
     spark: Array.from({ length: 24 }, (_, i) => 50 + 40 * Math.sin(i * 0.6 + seed) + 20 * Math.cos(i * 0.3 + seed * 2)),
     // Top countries served (varies by pop region)
@@ -154,6 +163,8 @@ const PopDetailPanel = ({ popId, onClose }) => {
               <span className="kicker" style={{ margin: 0, color: "var(--ink-faint)" }}>POP detail</span>
               {pop.hub
                 ? <span className="chip chip-orange" style={{ fontSize: 10 }}>HUB · BARE METAL</span>
+                : pop.deploy
+                ? <span className="chip chip-orange" style={{ fontSize: 10 }}>BARE METAL</span>
                 : <span className="chip chip-outline" style={{ fontSize: 10 }}>EDGE</span>}
             </div>
             <h2 style={{ margin: 0, fontSize: 24, fontWeight: 700, letterSpacing: "-0.01em" }}>
@@ -175,7 +186,7 @@ const PopDetailPanel = ({ popId, onClose }) => {
             <PopStat label="Req / min"   value={data.req.toLocaleString()} />
             <PopStat label="Latency p50" value={`${data.p50} ms`} highlight={data.p50 < 15 ? "good" : null} />
             <PopStat label="Latency p99" value={`${data.p99} ms`} highlight={data.p99 > 40 ? "warn" : null} />
-            <PopStat label="Cache hit"   value={pop.hub ? "—" : `${data.cacheHit}%`} />
+            <PopStat label="Cache hit"   value={isDeploy ? "—" : `${data.cacheHit}%`} />
           </div>
 
           {/* Sparkline */}
@@ -209,7 +220,7 @@ const PopDetailPanel = ({ popId, onClose }) => {
           <section className="pop-section">
             <div className="pop-section-head">
               <span>Capacity headroom</span>
-              <span style={{ fontFamily: "var(--font-mono)" }}>{data.used} / {data.capacity}{pop.hub ? " GPU" : " edge cores"}</span>
+              <span style={{ fontFamily: "var(--font-mono)" }}>{data.used} / {data.capacity}{isDeploy ? " GPU" : " edge cores"}</span>
             </div>
             <div style={{ height: 8, background: "var(--color-grey-200)", overflow: "hidden" }}>
               <div style={{ width: `${(data.used / data.capacity) * 100}%`, height: "100%", background: "var(--orange)" }} />
@@ -228,7 +239,7 @@ const PopDetailPanel = ({ popId, onClose }) => {
               </div>
             </PopRow>
             <PopRow label="Fibre backbone">
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: 12 }}>{pop.hub ? "Hub · 14 outbound peers" : "Connected to Paris hub (≤ 8 ms RTT)"}</span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 12 }}>{pop.hub ? "Hub · 14 outbound peers" : pop.deploy ? "Bare-metal node · weights synced from Paris" : "Connected to Paris hub (≤ 8 ms RTT)"}</span>
             </PopRow>
             <PopRow label="Provider">
               <span style={{ fontSize: 12 }}>Orange Wholesale International</span>
@@ -236,11 +247,27 @@ const PopDetailPanel = ({ popId, onClose }) => {
             <PopRow label="Uptime (30d)">
               <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "#1e8e1e" }}>{data.uptime.toFixed(3)}%</span>
             </PopRow>
-            {!pop.hub && (
+            {!isDeploy && (
               <PopRow label="Cache refreshed">
                 <span style={{ fontSize: 12 }}>{data.cacheRefreshed}</span>
               </PopRow>
             )}
+          </section>
+
+          {/* Deployment & carbon */}
+          <section className="pop-section">
+            <div className="pop-section-head"><span>Deployment &amp; carbon</span></div>
+            <PopRow label="Serving mode">
+              <span className="chip chip-outline" style={{ fontSize: 10 }}>{isDeploy ? "Bare-metal inference" : "Edge cache + route"}</span>
+            </PopRow>
+            <PopRow label="Hardware">
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 12 }}>{isDeploy ? "H100 · local GPU" : "Routing only"}</span>
+            </PopRow>
+            <PopRow label="Grid carbon">
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: carbon < 120 ? "#1e8e1e" : "var(--ink-soft)", display: "inline-flex", alignItems: "center", gap: 5 }}>
+                <Icon name="leaf" size={12} style={{ color: carbon < 120 ? "#1e8e1e" : "var(--ink-faint)" }} />{carbon} g/kWh
+              </span>
+            </PopRow>
           </section>
 
           {/* Sovereign attestation */}
@@ -358,6 +385,7 @@ const GridMap = ({ hovered, setHovered, selected, setSelected }) => {
     ["berlin", "frankfurt"], ["berlin", "warsaw"], ["warsaw", "munich"],
     ["paris", "lyon"], ["lyon", "marseille"], ["marseille", "barcelona"],
     ["barcelona", "madrid"], ["madrid", "lisbon"], ["paris", "frankfurt"],
+    ["oslo", "stockholm"], ["stockholm", "berlin"], ["oslo", "amsterdam"],
   ];
 
   return (
@@ -366,6 +394,8 @@ const GridMap = ({ hovered, setHovered, selected, setSelected }) => {
         theme="dark"
         width={1000}
         height={600}
+        center={[12, 54]}
+        scaleFactor={0.66}
         pops={POPS}
         hoveredPop={hovered}
         selectedPop={selected}
@@ -484,7 +514,7 @@ const GridMap = ({ hovered, setHovered, selected, setSelected }) => {
           <EUFlag size={9} /> EU coverage
         </div>
         <div style={{ fontSize: 24, fontWeight: 700, lineHeight: 1, marginTop: 2 }}>
-          14 <span style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", fontWeight: 500 }}>Active POPs</span>
+          {POPS.length} <span style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", fontWeight: 500 }}>Active POPs</span>
         </div>
       </div>
     </div>
@@ -497,12 +527,12 @@ const makeProjection = () => {
   // Mirror the EUMap fit logic by sampling a few European bounds.
   if (!window.d3) return ([lon, lat]) => [
     ((lon + 10) / 35) * 1000,
-    ((60 - lat) / 25) * 600,
+    ((62 - lat) / 28) * 600,
   ];
-  // d3 projection matching EUMap's fitExtent:
+  // d3 projection matching the grid EUMap (center [12,54], scaleFactor 0.66 → scale 660):
   const proj = d3.geoMercator()
-    .center([13, 53])
-    .scale(700)
+    .center([12, 54])
+    .scale(660)
     .translate([500, 300]);
   return proj;
 };
@@ -635,16 +665,16 @@ const HowItWorks = () => {
   const steps = [
     {
       n: "01",
-      title: "Model deployed in Paris",
-      sub: "Sovereign bare metal",
-      desc: "A single inference instance on a Gcore H100 GPU in France. The model never leaves France.",
+      title: "Deployed across Cloud Avenue regions",
+      sub: "Oslo · Stockholm · Berlin · Paris",
+      desc: "Bare-metal inference on NVIDIA H100 GPUs in Orange Cloud Avenue regions — choose low-carbon Nordic/French grids for residency and latency. Data stays in the EU.",
       icon: "server",
     },
     {
       n: "02",
-      title: "Lightweight cache replicated to POPs",
-      sub: "KV cache + frequent embeddings",
-      desc: "Each Orange edge POP keeps a local inference cache. First hop = closest POP.",
+      title: "KV cache replicated to 14 edge POPs",
+      sub: "NVIDIA Dynamo · disaggregated serving",
+      desc: "Each Orange edge POP keeps a local NVIDIA Dynamo KV cache. First hop = closest POP.",
       icon: "grid",
     },
     {
