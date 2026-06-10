@@ -118,9 +118,9 @@ const StepInfra = ({ config, setConfig, model, hw, onNext }) => {
   return (
     <div className="panel fade-in" style={{ padding: 28 }}>
       <h2 style={{ fontSize: 18, fontWeight: 700, margin: "0 0 4px" }}>Infrastructure</h2>
-      <p className="muted" style={{ margin: "0 0 24px", fontSize: 13 }}>Deploy the model on bare metal in one or several EU sites — for residency, latency and carbon.</p>
+      <p className="muted" style={{ margin: "0 0 24px", fontSize: 13 }}>Deploy the model on bare metal in one or several EU sites, for residency, latency and a low-carbon grid.</p>
 
-      <SectionLabel>Deployment regions — Cloud Avenue (Oslo · Stockholm · Berlin · Paris) + EU DCs</SectionLabel>
+      <SectionLabel>Deployment regions · Cloud Avenue (Oslo, Stockholm, Berlin, Paris) + EU DCs</SectionLabel>
       <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 240px", gap: 16, marginBottom: 16 }}>
         <div style={{ background: "var(--color-grey-100)", overflow: "hidden", aspectRatio: "1.6/1", position: "relative" }}>
           {window.EUMap ? (
@@ -178,7 +178,7 @@ const StepInfra = ({ config, setConfig, model, hw, onNext }) => {
                   : pop.strategic ? <span className="chip chip-outline" style={{ fontSize: 9 }}>Cloud Avenue</span> : null}
               </div>
               <div style={{ fontSize: 11, color: "var(--ink-faint)", paddingLeft: 19 }}>
-                {hostable ? `${pop.gpu} · ${pop.gpuFree} free · ${pop.latency} ms` : `No ${hw.gpu} — edge-cache only`}
+                {hostable ? `${pop.gpu} · ${pop.gpuFree} free · ${pop.latency} ms` : `No ${hw.gpu}, edge-cache only`}
               </div>
               <div style={{ fontSize: 11, paddingLeft: 19, color: (CARBON[pop.country] || 0) < 120 ? "#1e8e1e" : "var(--ink-faint)", display: "inline-flex", alignItems: "center", gap: 4 }}>
                 <Icon name="leaf" size={11} /> {CARBON[pop.country]} g/kWh
@@ -188,7 +188,7 @@ const StepInfra = ({ config, setConfig, model, hw, onNext }) => {
         })}
       </div>
 
-      <SectionLabel>Hardware — recommended for {model.name}</SectionLabel>
+      <SectionLabel>Hardware · recommended for {model.name}</SectionLabel>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 28 }}>
         {[
           { id: "h100", title: "1× H100 80GB", tps: 142, price: "€2.40" },
@@ -308,14 +308,16 @@ const StepSovereign = ({ config, setConfig, onNext, onBack }) => {
       <p className="muted" style={{ margin: "0 0 20px", fontSize: 13 }}>Four dimensions of the Orange sovereignty framework. The index updates live as you change the configuration.</p>
 
       {/* Reactive sovereignty index */}
-      <div style={{ background: "#000", color: "#fff", padding: 24, marginBottom: 24, borderLeft: "3px solid var(--orange)" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
+      <div style={{ marginBottom: 24, boxShadow: "inset 0 0 0 1px var(--panel-border)", borderLeft: "3px solid var(--orange)" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "13px 18px", borderBottom: "1px solid var(--line)", background: "var(--color-grey-100)" }}>
           <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--orange)", display: "inline-flex", alignItems: "center", gap: 6 }}>
             <Icon name="gauge" size={14} /> Sovereignty index
           </div>
-          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.6)" }}>{config.deployPops.length} EU site{config.deployPops.length > 1 ? "s" : ""} · {(window.POP_BY_ID||{})[config.deployPops[0]]?.city}</span>
+          <span style={{ fontSize: 11, color: "var(--ink-faint)" }}>{config.deployPops.length} EU site{config.deployPops.length > 1 ? "s" : ""} · {(window.POP_BY_ID||{})[config.deployPops[0]]?.city}</span>
         </div>
-        {window.SovereigntyPanel ? <SovereigntyPanel cfg={sovCfg(config)} dark /> : <div style={{ fontSize: 40, fontWeight: 700 }}>{sov.score}/100</div>}
+        <div style={{ padding: 18 }}>
+          {window.SovereigntyPanel ? <SovereigntyPanel cfg={sovCfg(config)} /> : <div style={{ fontSize: 40, fontWeight: 700 }}>{sov.score}/100</div>}
+        </div>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 24 }}>
@@ -331,8 +333,8 @@ const StepSovereign = ({ config, setConfig, onNext, onBack }) => {
           onToggle={() => setConfig(c => ({ ...c, logsEU: !c.logsEU }))}
         />
         <SovereignRow
-          icon="lock" title="Encryption at rest with EU HSM key"
-          desc="ANSSI-certified HSM module · keys held by Orange Business, never exported."
+          icon="lock" title="Encrypt everything stored on disk"
+          desc="Your prompts, the model's responses, the logs and the model weights are all encrypted at rest. The key lives in an ANSSI-certified hardware module (HSM) held by Orange Business, never leaves the EU, so no one (not even the provider) can read your data."
           on={config.hsm}
           onToggle={() => setConfig(c => ({ ...c, hsm: !c.hsm }))}
         />
@@ -460,11 +462,11 @@ const StepScaling = ({ config, setConfig, model, hw, onBack, onLaunch, openEdgeM
         border: `2px solid ${config.dynamo ? "#76b900" : "var(--color-grey-400)"}`,
       }}>
         <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
-          <div style={{ width: 40, height: 40, background: "#76b900", color: "#000", display: "grid", placeItems: "center" }}>
-            <Icon name="cpu" size={20} />
+          <div style={{ width: 44, height: 44, background: "#fff", border: "1px solid var(--color-grey-400)", display: "grid", placeItems: "center", padding: 7, flexShrink: 0 }}>
+            <img src="assets/logos/nvidia.svg" alt="NVIDIA" style={{ width: "100%", height: "auto", display: "block" }} />
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>{D.name} — {D.tagline}</div>
+            <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>{D.name}: {D.tagline}</div>
             <div style={{ fontSize: 12, color: "var(--ink-soft)", lineHeight: 1.5 }}>{D.desc}</div>
           </div>
           <div className={`toggle ${config.dynamo ? "on" : ""}`} onClick={() => setConfig(c => ({ ...c, dynamo: !c.dynamo }))}>
@@ -503,7 +505,7 @@ const StepScaling = ({ config, setConfig, model, hw, onBack, onLaunch, openEdgeM
         </div>
         {config.edgeRouting && (
           <div style={{ marginTop: 14, paddingTop: 14, borderTop: "1px dashed var(--orange)", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, fontSize: 12 }}>
-            <div><div className="faint" style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>POPs enabled</div><strong>16 EU</strong></div>
+            <div><div className="faint" style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>POPs enabled</div><strong>{(window.POPS||[]).length || 11} EU</strong></div>
             <div><div className="faint" style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>Target latency</div><strong>&lt; 40 ms</strong></div>
             <div><div className="faint" style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>Additional cost</div><strong>€0.00</strong></div>
           </div>
@@ -628,7 +630,7 @@ const EdgeInfoModal = ({ onClose }) => (
         <li>100% Orange network traffic, no public internet transit</li>
         <li>Perceived latency reduced 3-4× for users outside the inference regions</li>
         <li>Lightweight cache replicated to POPs (NVIDIA Dynamo KV cache, frequent embeddings)</li>
-        <li>Coverage: 16 EU POPs, Asia/Africa expansion planned 2026</li>
+        <li>Coverage: pan-EU edge POPs, Asia/Africa expansion planned 2026</li>
       </ul>
       <div style={{ marginTop: 16, padding: 12, background: "var(--color-grey-100)", fontSize: 12, color: "var(--ink-soft)" }}>
         <strong>Orange differentiator :</strong> neither Gcore, OVH nor Scaleway can combine sovereign bare metal AND edge routing — Orange is the only EU operator running its own fibre network.

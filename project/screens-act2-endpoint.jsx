@@ -71,11 +71,8 @@ const EndpointScreen = () => {
             <div style={{ display: "flex", gap: 12, marginTop: 8, fontSize: 12, color: "var(--ink-soft)", flexWrap: "wrap", alignItems: "center" }}>
               <span>Uptime <strong style={{ color: "#000", fontFamily: "var(--font-mono)" }}>{fmtUptime(uptime)}</strong></span>
               <span>·</span>
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-                <span style={{ display: "inline-block", width: 12, height: 8, background: "#0055A4" }}>
-                  <span style={{ display: "inline-block", width: 4, height: 8, background: "#fff" }} />
-                  <span style={{ display: "inline-block", width: 4, height: 8, background: "#EF4135" }} />
-                </span>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                <Icon name="mapPin" size={12} className="muted" />
                 {depPops.length > 1 ? `${depPops.length} sites · ${depPops.map(p => p.city).join(" · ")}` : primaryPop.site}
               </span>
               <span>·</span>
@@ -187,7 +184,7 @@ const ProvTimeline = ({ phase, step }) => {
   const stages = [
     { label: "H100 hardware reservation", sub: "Gcore PA-1 · slot allocated" },
     { label: "Model pull (47 GB)",     sub: "EU mirror · ~22s at 2.1 GB/s" },
-    { label: "Loading into VRAM",         sub: "vLLM init · KV cache ready" },
+    { label: "Loading into VRAM",         sub: "vLLM + NVIDIA Dynamo · KV cache ready" },
     { label: "Endpoint exposed",            sub: "Health check passed · ready to serve" },
   ];
   const reached = (i) => phase === "live" ? 4 : step;

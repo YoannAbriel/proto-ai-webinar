@@ -25,7 +25,7 @@ const MonitoringScreen = () => {
           <div className="kicker" style={{ color: "var(--ink-faint)" }}>Operations · Monitoring</div>
           <h1>Live monitoring</h1>
           <p className="subtitle">
-            Real-time view of your deployed endpoint <strong style={{ color: "#000" }}>mistral-small-24b · paris-1</strong>. Per-POP latency, throughput, GPU pressure and cost burn — sovereign telemetry, never leaves the EU.
+            Real-time view of your deployed endpoint <strong style={{ color: "#000" }}>mistral-small-24b · paris-1</strong>. Per-POP latency, throughput, GPU pressure and cost burn. Sovereign telemetry, never leaves the EU.
           </p>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -84,7 +84,7 @@ const MonitoringScreen = () => {
       <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", gap: 16, marginBottom: 16 }}>
         <ChartPanel
           title="GPU utilisation"
-          subtitle="H100 — Paris PA-1"
+          subtitle="H100 · Paris PA-1"
           unit="%"
           series={series.gpu}
           color="#1e8e1e"
@@ -130,10 +130,10 @@ const MonitoringScreen = () => {
         <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--line)", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16 }}>
           <div>
             <div style={{ fontSize: 14, fontWeight: 700 }}>Per-POP performance</div>
-            <div style={{ fontSize: 11, color: "var(--ink-faint)", marginTop: 2 }}>16 Orange POPs · 4 Cloud Avenue regions — sorted by load</div>
+            <div style={{ fontSize: 11, color: "var(--ink-faint)", marginTop: 2 }}>{(window.POPS || []).length || 11} Orange POPs · 4 Cloud Avenue regions · sorted by load</div>
           </div>
           <div style={{ display: "flex", gap: 6 }}>
-            {["all", "fr", "es", "de", "pl"].map(f => (
+            {["all", "fr", "de", "no", "se"].map(f => (
               <button key={f} onClick={() => setPopFilter(f)} className={`chip ${popFilter === f ? "chip-dark" : "chip-outline"}`} style={{ cursor: "pointer", fontFamily: "inherit", fontSize: 10 }}>
                 {f === "all" ? "All countries" : f.toUpperCase()}
               </button>
@@ -250,22 +250,17 @@ const ChartPanel = ({ title, subtitle, series, series2, color, color2, areaColor
 // ============ Per-POP table ============
 const PopTable = ({ popFilter, tick }) => {
   const POPS_MON = [
-    { city: "Paris",     country: "FR", load: 2440, p50: 4,  p99: 12,  gpu: null, share: 28, status: "hub" },
+    { city: "Paris",     country: "FR", load: 2440, p50: 4,  p99: 12,  share: 24, status: "hub" },
+    { city: "Berlin",    country: "DE", load: 1180, p50: 6,  p99: 18,  share: 14, status: "region" },
     { city: "Frankfurt", country: "DE", load: 920,  p50: 9,  p99: 21,  share: 11 },
-    { city: "Amsterdam", country: "NL", load: 780,  p50: 10, p99: 24,  share: 9 },
-    { city: "Berlin",    country: "DE", load: 740,  p50: 14, p99: 32,  share: 8 },
-    { city: "Madrid",    country: "ES", load: 620,  p50: 18, p99: 38,  share: 7 },
-    { city: "Milan",     country: "IT", load: 560,  p50: 15, p99: 36,  share: 6 },
-    { city: "Lyon",      country: "FR", load: 540,  p50: 12, p99: 28,  share: 6 },
-    { city: "Munich",    country: "DE", load: 480,  p50: 13, p99: 30,  share: 5 },
-    { city: "Barcelona", country: "ES", load: 440,  p50: 16, p99: 34,  share: 5 },
-    { city: "Brussels",  country: "BE", load: 380,  p50: 8,  p99: 19,  share: 4 },
-    { city: "Marseille", country: "FR", load: 340,  p50: 14, p99: 33,  share: 4 },
-    { city: "Rome",      country: "IT", load: 320,  p50: 19, p99: 42,  share: 4 },
-    { city: "Warsaw",    country: "PL", load: 280,  p50: 21, p99: 48,  share: 3 },
-    { city: "Lisbon",    country: "PT", load: 180,  p50: 22, p99: 51,  share: 2 },
-    { city: "Oslo",      country: "NO", load: 240,  p50: 6,  p99: 18,  share: 3, status: "region" },
-    { city: "Stockholm", country: "SE", load: 220,  p50: 7,  p99: 20,  share: 3, status: "region" },
+    { city: "Stockholm", country: "SE", load: 760,  p50: 5,  p99: 16,  share: 9,  status: "region" },
+    { city: "Oslo",      country: "NO", load: 680,  p50: 5,  p99: 17,  share: 8,  status: "region" },
+    { city: "Lyon",      country: "FR", load: 640,  p50: 12, p99: 28,  share: 8 },
+    { city: "Munich",    country: "DE", load: 560,  p50: 13, p99: 30,  share: 6 },
+    { city: "Lille",     country: "FR", load: 420,  p50: 8,  p99: 20,  share: 5 },
+    { city: "Marseille", country: "FR", load: 380,  p50: 14, p99: 33,  share: 5 },
+    { city: "Gothenburg",country: "SE", load: 320,  p50: 10, p99: 24,  share: 4 },
+    { city: "Stavanger", country: "NO", load: 240,  p50: 11, p99: 26,  share: 3 },
   ];
 
   const filtered = POPS_MON.filter(p =>
@@ -335,7 +330,7 @@ const td = () => ({ padding: "10px 16px" });
 // ============ Event log ============
 const EventLog = ({ tick }) => {
   const baseEvents = useMemoMon(() => [
-    { kind: "info",  ts: "now",         msg: "Endpoint healthy across 16 POPs",        meta: "all-clear · p99 within SLA" },
+    { kind: "info",  ts: "now",         msg: "Endpoint healthy across all POPs",        meta: "all-clear · p99 within SLA" },
     { kind: "info",  ts: "1 min ago",   msg: "Scale event: +1 instance (Frankfurt)",    meta: "auto-scale · load > 80%" },
     { kind: "warn",  ts: "4 min ago",   msg: "Warsaw POP p99 above 50 ms",              meta: "still under SLA · monitoring" },
     { kind: "info",  ts: "12 min ago",  msg: "Model cache warmed on Lisbon POP",        meta: "first request triggered prefetch" },

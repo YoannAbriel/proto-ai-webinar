@@ -202,7 +202,7 @@ const DynamoPanel = () => {
   return (
     <div className="panel" style={{ padding: 18, borderTop: "3px solid #76b900" }}>
       <h3 style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--ink-soft)", margin: "0 0 10px", display: "flex", alignItems: "center", gap: 6 }}>
-        <Icon name="cpu" size={14} style={{ color: "#76b900" }} /> NVIDIA Dynamo
+        <img src="assets/logos/nvidia.svg" alt="NVIDIA" style={{ height: 13, width: "auto", display: "block" }} /> NVIDIA Dynamo
       </h3>
       <div style={{ fontSize: 24, fontWeight: 700, fontFamily: "var(--font-mono)", marginBottom: 4 }}>{D.kvReusePct}<span style={{ fontSize: 12, color: "var(--ink-faint)" }}>%</span></div>
       <div style={{ fontSize: 11, color: "var(--ink-soft)", marginBottom: 12 }}>KV cache reuse · last hour</div>

@@ -378,10 +378,7 @@ const DetailScreen = () => {
           <DeployField label="Region">
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 12px", border: "1px solid var(--color-grey-500)", background: "#fff" }}>
               <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ width: 18, height: 12, background: "#0055A4", display: "inline-block" }}>
-                  <span style={{ display: "inline-block", width: 6, height: 12, background: "#fff" }} />
-                  <span style={{ display: "inline-block", width: 6, height: 12, background: "#EF4135" }} />
-                </span>
+                <FrFlag size={12} />
                 <span style={{ fontSize: 13, fontWeight: 700 }}>Paris (Cloud Avenue PA-1)</span>
               </span>
               <Icon name="lock" size={12} className="muted" />

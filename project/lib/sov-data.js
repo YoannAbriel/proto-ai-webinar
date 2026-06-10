@@ -42,8 +42,8 @@ const DEPLOY_POPS = [
   { id: "stockholm", city: "Stockholm", country: "SE", site: "Cloud Avenue ST-1", gpu: "H100", gpuFree: 80,  latency: 24, lon: 18.07, lat: 59.33, strategic: true },
   { id: "berlin",    city: "Berlin",    country: "DE", site: "Cloud Avenue BE-1", gpu: "H100", gpuFree: 120, latency: 14, lon: 13.4,  lat: 52.52, strategic: true },
   { id: "frankfurt", city: "Frankfurt", country: "DE", site: "Gcore FR-1",        gpu: "H100", gpuFree: 120, latency: 9,  lon: 8.68,  lat: 50.11 },
-  { id: "amsterdam", city: "Amsterdam", country: "NL", site: "Gcore AM-1",        gpu: "L40S", gpuFree: 80,  latency: 10, lon: 4.9,   lat: 52.37 },
-  { id: "madrid",    city: "Madrid",    country: "ES", site: "Gcore MD-1",        gpu: "A100", gpuFree: 36,  latency: 18, lon: -3.7,  lat: 40.4 },
+  { id: "lyon",      city: "Lyon",      country: "FR", site: "Gcore LY-1",        gpu: "A100", gpuFree: 48,  latency: 12, lon: 4.85,  lat: 45.76 },
+  { id: "marseille", city: "Marseille", country: "FR", site: "Gcore MR-1",        gpu: "L40S", gpuFree: 40,  latency: 14, lon: 5.37,  lat: 43.3 },
 ];
 const POP_BY_ID = Object.fromEntries(DEPLOY_POPS.map(p => [p.id, p]));
 

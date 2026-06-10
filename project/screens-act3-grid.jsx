@@ -4,55 +4,56 @@ const { useState: useStateG, useEffect: useEffectG, useRef: useRefG, useMemo: us
 // ============ POP geography ============
 // Coordinates in lon/lat — EUMap projects them via d3-geo to align with the real map.
 // labelDx/labelDy/labelAnchor steer city labels away from each other in dense areas.
+// Orange Cloud Avenue footprint: 4 strategic bare-metal regions (Paris, Oslo,
+// Stockholm, Berlin) plus more Orange DCs — clustered in those countries, several
+// per country, matching the real Cloud Avenue map (not one POP per European city).
 const POPS = [
-  { id: "paris",     city: "Paris",     country: "FR", lon: 2.35,  lat: 48.86, hub: true, deploy: true, req: "12.4k", lat_ms: 4,  labelDx: -10, labelAnchor: "end", labelDy: -8 },
-  { id: "oslo",      city: "Oslo",      country: "NO", lon: 10.75, lat: 59.91, deploy: true, req: "1.4k",  lat_ms: 6,  labelDx: 8,  labelDy: 4 },
-  { id: "stockholm", city: "Stockholm", country: "SE", lon: 18.07, lat: 59.33, deploy: true, req: "1.6k",  lat_ms: 7,  labelDx: 8,  labelDy: 4 },
-  { id: "lyon",      city: "Lyon",      country: "FR", lon: 4.85,  lat: 45.76, req: "3.2k",  lat_ms: 12, labelDx: -8,  labelAnchor: "end", labelDy: 4 },
-  { id: "marseille", city: "Marseille", country: "FR", lon: 5.37,  lat: 43.3,  req: "2.1k",  lat_ms: 14, labelDx: -8,  labelAnchor: "end", labelDy: 4 },
-  { id: "madrid",    city: "Madrid",    country: "ES", lon: -3.7,  lat: 40.4,  req: "2.8k",  lat_ms: 18, labelDy: 14 },
-  { id: "barcelona", city: "Barcelona", country: "ES", lon: 2.17,  lat: 41.4,  req: "1.9k",  lat_ms: 16, labelDy: 14 },
-  { id: "lisbon",    city: "Lisbon",    country: "PT", lon: -9.14, lat: 38.7,  req: "1.1k",  lat_ms: 22, labelDx: -8, labelAnchor: "end" },
-  { id: "milan",     city: "Milan",     country: "IT", lon: 9.19,  lat: 45.46, req: "2.4k",  lat_ms: 15, labelDy: 14 },
-  { id: "rome",      city: "Rome",      country: "IT", lon: 12.5,  lat: 41.9,  req: "1.7k",  lat_ms: 19, labelDy: 14 },
-  { id: "brussels",  city: "Brussels",  country: "BE", lon: 4.35,  lat: 50.85, req: "1.5k",  lat_ms: 8,  labelDx: -8, labelAnchor: "end", labelDy: -6 },
-  { id: "amsterdam", city: "Amsterdam", country: "NL", lon: 4.9,   lat: 52.37, req: "2.7k",  lat_ms: 10, labelDx: -8, labelAnchor: "end", labelDy: -4 },
-  { id: "frankfurt", city: "Frankfurt", country: "DE", lon: 8.68,  lat: 50.11, req: "3.5k",  lat_ms: 9,  labelDy: -4 },
-  { id: "munich",    city: "Munich",    country: "DE", lon: 11.58, lat: 48.14, req: "2.2k",  lat_ms: 13, labelDy: 14 },
-  { id: "berlin",    city: "Berlin",    country: "DE", lon: 13.4,  lat: 52.52, deploy: true, req: "2.9k",  lat_ms: 14, labelDy: -6 },
-  { id: "warsaw",    city: "Warsaw",    country: "PL", lon: 21.0,  lat: 52.23, req: "1.3k",  lat_ms: 21 },
+  // France
+  { id: "paris",     city: "Paris",     country: "FR", lon: 2.35,  lat: 48.86, hub: true, deploy: true, req: "12.4k", lat_ms: 4,  labelDx: -10, labelAnchor: "end", labelDy: 0 },
+  { id: "lille",     city: "Lille",     country: "FR", lon: 3.06,  lat: 50.63, req: "1.8k",  lat_ms: 8,  labelDx: 8,  labelDy: -4 },
+  { id: "lyon",      city: "Lyon",      country: "FR", lon: 4.85,  lat: 45.76, req: "3.2k",  lat_ms: 12, labelDx: -8, labelAnchor: "end", labelDy: 4 },
+  { id: "marseille", city: "Marseille", country: "FR", lon: 5.37,  lat: 43.3,  req: "2.1k",  lat_ms: 14, labelDx: -8, labelAnchor: "end", labelDy: 4 },
+  // Germany
+  { id: "berlin",    city: "Berlin",    country: "DE", lon: 13.4,  lat: 52.52, deploy: true, req: "4.6k",  lat_ms: 6,  labelDx: 8,  labelDy: -4 },
+  { id: "frankfurt", city: "Frankfurt", country: "DE", lon: 8.68,  lat: 50.11, req: "3.5k",  lat_ms: 9,  labelDx: -8, labelAnchor: "end", labelDy: 4 },
+  { id: "munich",    city: "Munich",    country: "DE", lon: 11.58, lat: 48.14, req: "2.2k",  lat_ms: 13, labelDx: 8,  labelDy: 4 },
+  // Norway
+  { id: "oslo",      city: "Oslo",      country: "NO", lon: 10.75, lat: 59.91, deploy: true, req: "2.4k",  lat_ms: 5,  labelDx: 8,  labelDy: 0 },
+  { id: "stavanger", city: "Stavanger", country: "NO", lon: 5.73,  lat: 58.97, req: "0.9k",  lat_ms: 11, labelDx: -8, labelAnchor: "end", labelDy: 4 },
+  // Sweden
+  { id: "stockholm", city: "Stockholm", country: "SE", lon: 18.07, lat: 59.33, deploy: true, req: "2.6k",  lat_ms: 5,  labelDx: 8,  labelDy: 0 },
+  { id: "gothenburg",city: "Gothenburg",country: "SE", lon: 11.97, lat: 57.71, req: "1.1k",  lat_ms: 10, labelDx: -8, labelAnchor: "end", labelDy: 4 },
 ];
 
 // User clusters — represent end-users near each POP. Coordinates are lon/lat;
 // projected via the same d3 projection so they stay aligned with the map.
 const USERS = [
-  { id: "u-lisbon",    lon: -9.5,  lat: 38.6, near: "lisbon"    },
-  { id: "u-porto",     lon: -8.6,  lat: 41.1, near: "lisbon"    },
-  { id: "u-madrid",    lon: -3.9,  lat: 40.6, near: "madrid"    },
-  { id: "u-valencia",  lon: -0.4,  lat: 39.5, near: "madrid"    },
-  { id: "u-bcn",       lon: 2.2,   lat: 41.6, near: "barcelona" },
-  { id: "u-toulouse",  lon: 1.4,   lat: 43.6, near: "marseille" },
-  { id: "u-marseille", lon: 5.4,   lat: 43.4, near: "marseille" },
+  // France
+  { id: "u-paris2",    lon: 1.6,   lat: 48.2, near: "paris"     },
+  { id: "u-rennes",    lon: -1.7,  lat: 48.1, near: "paris"     },
+  { id: "u-lille",     lon: 3.1,   lat: 50.6, near: "lille"     },
   { id: "u-lyon",      lon: 4.9,   lat: 45.8, near: "lyon"      },
   { id: "u-geneva",    lon: 6.1,   lat: 46.2, near: "lyon"      },
-  { id: "u-paris2",    lon: 1.5,   lat: 47.5, near: "paris"     },
-  { id: "u-zurich",    lon: 8.5,   lat: 47.4, near: "munich"    },
-  { id: "u-milan",     lon: 9.2,   lat: 45.5, near: "milan"     },
-  { id: "u-naples",    lon: 14.3,  lat: 40.8, near: "rome"      },
-  { id: "u-rome",      lon: 12.5,  lat: 41.9, near: "rome"      },
+  { id: "u-marseille", lon: 5.4,   lat: 43.4, near: "marseille" },
+  { id: "u-nice",      lon: 7.3,   lat: 43.7, near: "marseille" },
+  // Germany
   { id: "u-frankfurt", lon: 8.7,   lat: 50.1, near: "frankfurt" },
-  { id: "u-hamburg",   lon: 10.0,  lat: 53.5, near: "berlin"    },
+  { id: "u-cologne",   lon: 6.96,  lat: 50.9, near: "frankfurt" },
+  { id: "u-munich",    lon: 11.6,  lat: 48.1, near: "munich"    },
   { id: "u-berlin",    lon: 13.4,  lat: 52.5, near: "berlin"    },
-  { id: "u-prague",    lon: 14.4,  lat: 50.1, near: "munich"    },
-  { id: "u-warsaw",    lon: 21.0,  lat: 52.2, near: "warsaw"    },
-  { id: "u-krakow",    lon: 19.9,  lat: 50.1, near: "warsaw"    },
-  { id: "u-amsterdam", lon: 4.9,   lat: 52.4, near: "amsterdam" },
-  { id: "u-brussels",  lon: 4.4,   lat: 50.8, near: "brussels"  },
-  { id: "u-london",    lon: -0.1,  lat: 51.5, near: "brussels"  },
+  { id: "u-hamburg",   lon: 10.0,  lat: 53.5, near: "berlin"    },
+  // Norway
   { id: "u-oslo",      lon: 10.8,  lat: 59.9, near: "oslo"      },
+  { id: "u-stavanger", lon: 5.7,   lat: 59.0, near: "stavanger" },
+  { id: "u-bergen",    lon: 5.3,   lat: 60.4, near: "stavanger" },
+  // Sweden
   { id: "u-stockholm", lon: 18.1,  lat: 59.3, near: "stockholm" },
-  { id: "u-copenhagen",lon: 12.6,  lat: 55.7, near: "stockholm" },
-  { id: "u-gothenburg",lon: 12.0,  lat: 57.7, near: "oslo"      },
+  { id: "u-gothenburg",lon: 12.0,  lat: 57.7, near: "gothenburg"},
+  { id: "u-copenhagen",lon: 12.6,  lat: 55.7, near: "gothenburg"},
+  // Routed in from neighbouring countries (nearest Orange POP)
+  { id: "u-london",    lon: -0.1,  lat: 51.5, near: "lille"     },
+  { id: "u-brussels",  lon: 4.4,   lat: 50.8, near: "lille"     },
+  { id: "u-amsterdam", lon: 4.9,   lat: 52.4, near: "frankfurt" },
 ];
 
 // ============ Screen 5: AI Grid ============
@@ -67,10 +68,10 @@ const GridScreen = () => {
       <div style={{ marginBottom: 20 }}>
         <div className="kicker">Act 3 · Hero</div>
         <h1 style={{ fontSize: 32, fontWeight: 700, margin: "0 0 8px", letterSpacing: "-0.01em", lineHeight: 1.1 }}>
-          Orange AI Grid — Edge token routing
+          Orange AI Grid · Edge token routing
         </h1>
         <p style={{ fontSize: 15, color: "var(--ink-soft)", margin: 0, maxWidth: 900, lineHeight: 1.5 }}>
-          Your model runs bare-metal across the <strong style={{ color: "#000" }}>Cloud Avenue regions — Paris, Oslo, Stockholm and Berlin</strong>, and is served from <strong style={{ color: "#000" }}>Orange edge POPs across Europe</strong>. Every request is routed to the POP closest to the end user — never outside the EU. <span style={{ color: "var(--orange)", fontWeight: 600 }}>Click any POP to drill down.</span>
+          Your model runs bare-metal in the <strong style={{ color: "#000" }}>Cloud Avenue regions (Paris, Oslo, Stockholm, Berlin)</strong>, served from <strong style={{ color: "#000" }}>{POPS.length} Orange POPs across France, Germany, Norway and Sweden</strong>. Every request is routed to the POP closest to the end user, never outside the EU. <span style={{ color: "var(--orange)", fontWeight: 600 }}>Click any POP to drill down.</span>
         </p>
       </div>
 
@@ -337,19 +338,15 @@ const Sparkline = ({ series }) => {
 };
 
 function topCountriesFor(pop) {
-  // Pick a region-appropriate top-5 list. Shares are illustrative.
-  const FR = [["🇫🇷","France",42],["🇧🇪","Belgium",18],["🇨🇭","Switzerland",14],["🇱🇺","Luxembourg",9],["🇩🇪","Germany",8]];
-  const ES = [["🇪🇸","Spain",54],["🇵🇹","Portugal",17],["🇫🇷","France",12],["🇦🇩","Andorra",6],["🇲🇦","Morocco (cached)",4]];
-  const IT = [["🇮🇹","Italy",58],["🇨🇭","Switzerland",13],["🇸🇮","Slovenia",9],["🇦🇹","Austria",8],["🇸🇲","San Marino",3]];
-  const DE = [["🇩🇪","Germany",52],["🇦🇹","Austria",16],["🇨🇿","Czechia",10],["🇨🇭","Switzerland",9],["🇳🇱","Netherlands",6]];
-  const PL = [["🇵🇱","Poland",58],["🇩🇪","Germany",12],["🇨🇿","Czechia",9],["🇸🇰","Slovakia",8],["🇱🇹","Lithuania",6]];
-  const BE = [["🇧🇪","Belgium",48],["🇳🇱","Netherlands",22],["🇱🇺","Luxembourg",10],["🇫🇷","France",8],["🇩🇪","Germany",6]];
-  const NL = [["🇳🇱","Netherlands",56],["🇧🇪","Belgium",14],["🇩🇪","Germany",12],["🇬🇧","United Kingdom",8],["🇩🇰","Denmark",5]];
-  const PT = [["🇵🇹","Portugal",62],["🇪🇸","Spain",18],["🇫🇷","France",8],["🇨🇻","Cape Verde",5],["🇦🇴","Angola (cached)",3]];
+  // Region-appropriate top countries served (shares illustrative).
+  const FR = [["France",46],["Belgium",15],["Switzerland",13],["Luxembourg",9],["Spain",7]];
+  const DE = [["Germany",54],["Austria",15],["Czechia",10],["Switzerland",8],["Netherlands",7]];
+  const NO = [["Norway",64],["Sweden",14],["Denmark",11],["Iceland",6],["Finland",5]];
+  const SE = [["Sweden",60],["Denmark",16],["Norway",12],["Finland",8],["Estonia",4]];
 
-  const byCountry = { FR, ES, IT, DE, PL, BE, NL, PT };
+  const byCountry = { FR, DE, NO, SE };
   const set = byCountry[pop.country] || FR;
-  return set.map(([flag, name, share]) => ({ flag, name, share }));
+  return set.map(([name, share]) => ({ name, share }));
 }
 
 // ============ Hero map (uses real Europe geography via d3-geo) ============
@@ -379,12 +376,10 @@ const GridMap = ({ hovered, setHovered, selected, setSelected }) => {
 
   // Fibre mesh edges between cities (Orange backbone)
   const MESH = [
-    ["amsterdam", "frankfurt"], ["amsterdam", "brussels"], ["brussels", "paris"],
-    ["frankfurt", "munich"], ["munich", "milan"], ["milan", "rome"],
-    ["berlin", "frankfurt"], ["berlin", "warsaw"], ["warsaw", "munich"],
-    ["paris", "lyon"], ["lyon", "marseille"], ["marseille", "barcelona"],
-    ["barcelona", "madrid"], ["madrid", "lisbon"], ["paris", "frankfurt"],
-    ["oslo", "stockholm"], ["stockholm", "berlin"], ["oslo", "amsterdam"],
+    ["paris", "lille"], ["paris", "lyon"], ["lyon", "marseille"], ["paris", "frankfurt"],
+    ["berlin", "frankfurt"], ["frankfurt", "munich"], ["berlin", "munich"],
+    ["oslo", "stockholm"], ["oslo", "stavanger"], ["stockholm", "gothenburg"], ["oslo", "gothenburg"],
+    ["paris", "oslo"], ["berlin", "stockholm"], ["paris", "berlin"], ["lille", "frankfurt"],
   ];
 
   return (
@@ -393,8 +388,8 @@ const GridMap = ({ hovered, setHovered, selected, setSelected }) => {
         theme="dark"
         width={1000}
         height={600}
-        center={[12, 54]}
-        scaleFactor={0.66}
+        center={[9, 53]}
+        scaleFactor={0.72}
         pops={POPS}
         hoveredPop={hovered}
         selectedPop={selected}
@@ -483,9 +478,9 @@ const GridMap = ({ hovered, setHovered, selected, setSelected }) => {
         fontSize: 11, color: "#fff",
         display: "flex", flexDirection: "column", gap: 6,
       }}>
-        <LegendRow color="#ff7900" filled label="Bare metal inference — Paris" />
-        <LegendRow color="#ff7900" label="Orange edge POP — token routing" small />
-        <LegendRow color="#ffffff" dot label="End user — served by closest POP" small />
+        <LegendRow color="#ff7900" filled label="Bare metal · Cloud Avenue regions" />
+        <LegendRow color="#ff7900" label="Orange edge POP · token routing" small />
+        <LegendRow color="#ffffff" dot label="End user · served by closest POP" small />
         <LegendRow line label="Orange fibre backbone (EU sovereign)" small />
       </div>
 
@@ -525,13 +520,13 @@ const makeProjection = () => {
   // Returns a function (lon, lat) -> [x, y] in 1000x600 coords.
   // Mirror the EUMap fit logic by sampling a few European bounds.
   if (!window.d3) return ([lon, lat]) => [
-    ((lon + 10) / 35) * 1000,
-    ((62 - lat) / 28) * 600,
+    ((lon + 12) / 34) * 1000,
+    ((62 - lat) / 26) * 600,
   ];
-  // d3 projection matching the grid EUMap (center [12,54], scaleFactor 0.66 → scale 660):
+  // d3 projection matching the grid EUMap (center [9,53], scaleFactor 0.72 → scale 720):
   const proj = d3.geoMercator()
-    .center([12, 54])
-    .scale(660)
+    .center([9, 53])
+    .scale(720)
     .translate([500, 300]);
   return proj;
 };
@@ -666,7 +661,7 @@ const HowItWorks = () => {
       n: "01",
       title: "Deployed across Cloud Avenue regions",
       sub: "Oslo · Stockholm · Berlin · Paris",
-      desc: "Bare-metal inference on NVIDIA H100 GPUs in Orange Cloud Avenue regions — choose low-carbon Nordic/French grids for residency and latency. Data stays in the EU.",
+      desc: "Bare-metal inference on NVIDIA H100 GPUs in Orange Cloud Avenue regions. Choose low-carbon Nordic or French grids for residency and latency. Data stays in the EU.",
       icon: "server",
     },
     {

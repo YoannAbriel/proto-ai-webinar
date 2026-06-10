@@ -94,6 +94,15 @@ const EUFlag = ({ size = 16 }) => {
   );
 };
 
+// ============ French flag (clean 3-band) ============
+const FrFlag = ({ size = 12 }) => (
+  <span style={{ display: "inline-flex", width: size * 1.5, height: size, verticalAlign: "middle", boxShadow: "inset 0 0 0 0.5px rgba(0,0,0,0.12)", flexShrink: 0 }} aria-label="France">
+    <span style={{ flex: 1, background: "#0055A4" }} />
+    <span style={{ flex: 1, background: "#fff" }} />
+    <span style={{ flex: 1, background: "#EF4135" }} />
+  </span>
+);
+
 // ============ Gcore wordmark placeholder ============
 const GCoreMark = () => (
   <span style={{
@@ -336,6 +345,6 @@ const Shell = ({ children }) => {
 };
 
 Object.assign(window, {
-  Icon, OrangeSquare, EUFlag, GCoreMark, HFOrgAvatar,
+  Icon, OrangeSquare, EUFlag, FrFlag, GCoreMark, HFOrgAvatar,
   NavCtx, useNav, Shell,
 });

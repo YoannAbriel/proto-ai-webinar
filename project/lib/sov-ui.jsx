@@ -31,31 +31,59 @@ const SovGauge = ({ score = 0, level, size = 116, stroke = 9, dark = false }) =>
   );
 };
 
-// Four-dimension breakdown with reactive bars.
-const SovDimensions = ({ dims = [], dark = false }) => (
-  <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-    {dims.map(d => (
-      <div key={d.key}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 4 }}>
-          <span style={{ fontSize: 12, fontWeight: 700, color: dark ? "#fff" : "#000" }}>{d.label} sovereignty</span>
-          <span style={{ fontSize: 12, fontWeight: 700, fontFamily: "var(--font-mono)", color: dark ? "rgba(255,255,255,0.8)" : "var(--ink-soft)" }}>{d.score}</span>
-        </div>
-        <div style={{ height: 5, background: dark ? "rgba(255,255,255,0.12)" : "var(--color-grey-200)" }}>
-          <div style={{ width: `${d.score}%`, height: "100%", background: d.score >= 75 ? "#1e8e1e" : d.score >= 60 ? "var(--color-warning)" : "var(--color-error)", transition: "width var(--dur-base) var(--easing-standard)" }} />
-        </div>
-        <div style={{ fontSize: 11, color: dark ? "rgba(255,255,255,0.55)" : "var(--ink-faint)", marginTop: 3 }}>{d.detail}</div>
-      </div>
-    ))}
-  </div>
-);
+const sovColor = (s) => s >= 75 ? "#3fae3f" : s >= 60 ? "var(--color-warning)" : "var(--color-error)";
 
-// Convenience: full panel from a deploy config.
+// Four-dimension breakdown. layout="list" (narrow columns) or "tiles" (wide).
+const SovDimensions = ({ dims = [], dark = false, layout = "list" }) => {
+  if (layout === "tiles") {
+    return (
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 10 }}>
+        {dims.map(d => (
+          <div key={d.key} style={{
+            padding: "12px 14px",
+            background: dark ? "rgba(255,255,255,0.05)" : "var(--color-grey-100)",
+            borderLeft: `2px solid ${sovColor(d.score)}`,
+          }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: dark ? "#fff" : "#000" }}>{d.label}<span style={{ fontWeight: 400, color: dark ? "rgba(255,255,255,0.45)" : "var(--ink-faint)" }}> sovereignty</span></span>
+              <span style={{ fontSize: 17, fontWeight: 700, fontFamily: "var(--font-mono)", color: sovColor(d.score), letterSpacing: "-0.01em" }}>{d.score}</span>
+            </div>
+            <div style={{ height: 4, background: dark ? "rgba(255,255,255,0.12)" : "var(--color-grey-200)" }}>
+              <div style={{ width: `${d.score}%`, height: "100%", background: sovColor(d.score), transition: "width var(--dur-base) var(--easing-standard)" }} />
+            </div>
+            <div style={{ fontSize: 10.5, color: dark ? "rgba(255,255,255,0.5)" : "var(--ink-faint)", marginTop: 7, lineHeight: 1.4 }}>
+              {(d.criteria || []).join(" · ")}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      {dims.map(d => (
+        <div key={d.key}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 4 }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: dark ? "#fff" : "#000" }}>{d.label} sovereignty</span>
+            <span style={{ fontSize: 12, fontWeight: 700, fontFamily: "var(--font-mono)", color: dark ? "rgba(255,255,255,0.8)" : "var(--ink-soft)" }}>{d.score}</span>
+          </div>
+          <div style={{ height: 5, background: dark ? "rgba(255,255,255,0.12)" : "var(--color-grey-200)" }}>
+            <div style={{ width: `${d.score}%`, height: "100%", background: sovColor(d.score), transition: "width var(--dur-base) var(--easing-standard)" }} />
+          </div>
+          <div style={{ fontSize: 11, color: dark ? "rgba(255,255,255,0.55)" : "var(--ink-faint)", marginTop: 3 }}>{d.detail}</div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// Convenience: full panel from a deploy config (wide layout — gauge + tiles).
 const SovereigntyPanel = ({ cfg, dark = false }) => {
   const sov = window.computeSovereignty ? window.computeSovereignty(cfg) : { score: 0, dims: [], level: null };
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "auto minmax(0,1fr)", gap: 24, alignItems: "center" }}>
+    <div style={{ display: "grid", gridTemplateColumns: "auto minmax(0,1fr)", gap: 28, alignItems: "center" }}>
       <SovGauge score={sov.score} level={sov.level} dark={dark} />
-      <SovDimensions dims={sov.dims} dark={dark} />
+      <SovDimensions dims={sov.dims} dark={dark} layout="tiles" />
     </div>
   );
 };
