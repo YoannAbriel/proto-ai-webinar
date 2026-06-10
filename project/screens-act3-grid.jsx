@@ -65,14 +65,23 @@ const GridScreen = () => {
   return (
     <div className="fade-in">
       {/* Header */}
-      <div style={{ marginBottom: 20 }}>
-        <div className="kicker">Act 3 · Hero</div>
-        <h1 style={{ fontSize: 32, fontWeight: 700, margin: "0 0 8px", letterSpacing: "-0.01em", lineHeight: 1.1 }}>
-          Orange AI Grid · Edge token routing
-        </h1>
-        <p style={{ fontSize: 15, color: "var(--ink-soft)", margin: 0, maxWidth: 900, lineHeight: 1.5 }}>
-          Your model runs bare-metal in the <strong style={{ color: "#000" }}>Cloud Avenue regions (Paris, Oslo, Stockholm, Berlin)</strong>, served from <strong style={{ color: "#000" }}>{POPS.length} Orange POPs across France, Germany, Norway and Sweden</strong>. Every request is routed to the POP closest to the end user, never outside the EU. <span style={{ color: "var(--orange)", fontWeight: 600 }}>Click any POP to drill down.</span>
-        </p>
+      <div style={{ marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 24 }}>
+        <div>
+          <div className="kicker">Act 3 · Hero</div>
+          <h1 style={{ fontSize: 32, fontWeight: 700, margin: "0 0 8px", letterSpacing: "-0.01em", lineHeight: 1.1 }}>
+            Orange AI Grid · Edge token routing
+          </h1>
+          <p style={{ fontSize: 15, color: "var(--ink-soft)", margin: 0, maxWidth: 900, lineHeight: 1.5 }}>
+            Your model runs bare-metal in the <strong style={{ color: "#000" }}>Cloud Avenue regions (Paris, Oslo, Stockholm, Berlin)</strong>, served from <strong style={{ color: "#000" }}>{POPS.length} Orange POPs across France, Germany, Norway and Sweden</strong>. Every request is routed to the POP closest to the end user, never outside the EU. <span style={{ color: "var(--orange)", fontWeight: 600 }}>Click any POP to drill down.</span>
+          </p>
+        </div>
+        <div style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 9, padding: "8px 14px", background: "#fff", boxShadow: "inset 0 0 0 1px var(--panel-border)", whiteSpace: "nowrap" }}>
+          <img src="assets/logos/nvidia.svg" alt="NVIDIA" style={{ height: 18, width: "auto", display: "block" }} />
+          <div style={{ lineHeight: 1.15 }}>
+            <div style={{ fontSize: 9, color: "var(--ink-faint)", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 700 }}>Inference engine</div>
+            <div style={{ fontSize: 13, fontWeight: 700 }}>NVIDIA Dynamo</div>
+          </div>
+        </div>
       </div>
 
       {/* Hero map */}
