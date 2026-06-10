@@ -141,7 +141,7 @@ const PopDetailPanel = ({ popId, onClose }) => {
     p50: pop.lat_ms,
     p99: pop.lat_ms + Math.round(15 + r(2) * 25),
     cacheHit: 68 + Math.round(r(3) * 22),
-    capacity: pop.hub ? 248 : pop.deploy ? (pop.id === "lyon" ? 64 : 40) : Math.round(40 + r(4) * 60),
+    capacity: pop.deploy ? ((window.POP_BY_ID || {})[pop.id]?.gpuFree || 64) : Math.round(40 + r(4) * 60),
     used: 0, // computed below
     uptime: 99.95 + r(5) * 0.05,
     peeringIxps: pop.hub ? ["FranceIX", "AMS-IX", "DE-CIX"] : ["FranceIX", "DE-CIX"].slice(0, 1 + Math.round(r(6) * 1)),
@@ -162,10 +162,10 @@ const PopDetailPanel = ({ popId, onClose }) => {
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
               <span className="kicker" style={{ margin: 0, color: "var(--ink-faint)" }}>POP detail</span>
               {pop.hub
-                ? <span className="chip chip-orange" style={{ fontSize: 10 }}>HUB · BARE METAL</span>
+                ? <span className="chip chip-orange" style={{ fontSize: 10 }}>Hub · bare metal</span>
                 : pop.deploy
-                ? <span className="chip chip-orange" style={{ fontSize: 10 }}>BARE METAL</span>
-                : <span className="chip chip-outline" style={{ fontSize: 10 }}>EDGE</span>}
+                ? <span className="chip chip-orange" style={{ fontSize: 10 }}>Bare metal</span>
+                : <span className="chip chip-outline" style={{ fontSize: 10 }}>Edge</span>}
             </div>
             <h2 style={{ margin: 0, fontSize: 24, fontWeight: 700, letterSpacing: "-0.01em" }}>
               {pop.city}
@@ -205,8 +205,7 @@ const PopDetailPanel = ({ popId, onClose }) => {
               <span style={{ fontSize: 10, color: "var(--ink-faint)" }}>by token volume</span>
             </div>
             {data.topCountries.map((c, i) => (
-              <div key={c.flag} style={{ display: "grid", gridTemplateColumns: "24px 1fr 60px 60px", gap: 10, alignItems: "center", padding: "6px 0", borderBottom: i < data.topCountries.length - 1 ? "1px solid var(--line)" : 0 }}>
-                <span style={{ fontSize: 16 }}>{c.flag}</span>
+              <div key={c.name} style={{ display: "grid", gridTemplateColumns: "1fr 60px 60px", gap: 10, alignItems: "center", padding: "6px 0", borderBottom: i < data.topCountries.length - 1 ? "1px solid var(--line)" : 0 }}>
                 <span style={{ fontSize: 13, fontWeight: 500 }}>{c.name}</span>
                 <div style={{ height: 4, background: "var(--color-grey-200)" }}>
                   <div style={{ width: `${c.share}%`, height: "100%", background: "var(--orange)" }} />
@@ -239,7 +238,7 @@ const PopDetailPanel = ({ popId, onClose }) => {
               </div>
             </PopRow>
             <PopRow label="Fibre backbone">
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: 12 }}>{pop.hub ? "Hub · 14 outbound peers" : pop.deploy ? "Bare-metal node · weights synced from Paris" : "Connected to Paris hub (≤ 8 ms RTT)"}</span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 12 }}>{pop.hub ? `Hub · ${POPS.length - 1} outbound peers` : pop.deploy ? "Bare-metal node · weights synced from Paris" : "Connected to Paris hub (≤ 8 ms RTT)"}</span>
             </PopRow>
             <PopRow label="Provider">
               <span style={{ fontSize: 12 }}>Orange Wholesale International</span>
@@ -616,7 +615,7 @@ const PopList = ({ hovered, setHovered, onSelect }) => {
     <div className="panel" style={{ padding: 0 }}>
       <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--line)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <h3 style={{ fontSize: 13, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--ink-soft)", margin: 0 }}>Active POPs</h3>
-        <span className="faint" style={{ fontSize: 11 }}>14/14 · 100% healthy</span>
+        <span className="faint" style={{ fontSize: 11 }}>{POPS.length}/{POPS.length} · 100% healthy</span>
       </div>
       <div style={{ maxHeight: 380, overflowY: "auto" }}>
         {POPS.map((p, i) => {
@@ -672,7 +671,7 @@ const HowItWorks = () => {
     },
     {
       n: "02",
-      title: "KV cache replicated to 14 edge POPs",
+      title: "KV cache replicated to every edge POP",
       sub: "NVIDIA Dynamo · disaggregated serving",
       desc: "Each Orange edge POP keeps a local NVIDIA Dynamo KV cache. First hop = closest POP.",
       icon: "grid",

@@ -130,7 +130,7 @@ const MonitoringScreen = () => {
         <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--line)", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16 }}>
           <div>
             <div style={{ fontSize: 14, fontWeight: 700 }}>Per-POP performance</div>
-            <div style={{ fontSize: 11, color: "var(--ink-faint)", marginTop: 2 }}>14 Orange edge POPs — sorted by load</div>
+            <div style={{ fontSize: 11, color: "var(--ink-faint)", marginTop: 2 }}>16 Orange POPs · 4 Cloud Avenue regions — sorted by load</div>
           </div>
           <div style={{ display: "flex", gap: 6 }}>
             {["all", "fr", "es", "de", "pl"].map(f => (
@@ -264,6 +264,8 @@ const PopTable = ({ popFilter, tick }) => {
     { city: "Rome",      country: "IT", load: 320,  p50: 19, p99: 42,  share: 4 },
     { city: "Warsaw",    country: "PL", load: 280,  p50: 21, p99: 48,  share: 3 },
     { city: "Lisbon",    country: "PT", load: 180,  p50: 22, p99: 51,  share: 2 },
+    { city: "Oslo",      country: "NO", load: 240,  p50: 6,  p99: 18,  share: 3, status: "region" },
+    { city: "Stockholm", country: "SE", load: 220,  p50: 7,  p99: 20,  share: 3, status: "region" },
   ];
 
   const filtered = POPS_MON.filter(p =>
@@ -293,7 +295,8 @@ const PopTable = ({ popFilter, tick }) => {
                     <span style={{ width: 6, height: 6, background: p.status === "hub" ? "var(--orange)" : "var(--color-success)", borderRadius: "50%" }} />
                     <strong>{p.city}</strong>
                     <span className="faint" style={{ fontSize: 11 }}>{p.country}</span>
-                    {p.status === "hub" && <span className="chip chip-orange" style={{ fontSize: 9, padding: "1px 5px" }}>HUB · BARE METAL</span>}
+                    {p.status === "hub" && <span className="chip chip-orange" style={{ fontSize: 9, padding: "1px 5px" }}>Hub · bare metal</span>}
+                    {p.status === "region" && <span className="chip chip-outline" style={{ fontSize: 9, padding: "1px 5px" }}>Cloud Avenue</span>}
                   </div>
                 </td>
                 <td style={{ ...td(), textAlign: "right", fontFamily: "var(--font-mono)" }}>{live.toLocaleString()}</td>
@@ -332,7 +335,7 @@ const td = () => ({ padding: "10px 16px" });
 // ============ Event log ============
 const EventLog = ({ tick }) => {
   const baseEvents = useMemoMon(() => [
-    { kind: "info",  ts: "now",         msg: "Endpoint healthy across 14 POPs",        meta: "all-clear · p99 within SLA" },
+    { kind: "info",  ts: "now",         msg: "Endpoint healthy across 16 POPs",        meta: "all-clear · p99 within SLA" },
     { kind: "info",  ts: "1 min ago",   msg: "Scale event: +1 instance (Frankfurt)",    meta: "auto-scale · load > 80%" },
     { kind: "warn",  ts: "4 min ago",   msg: "Warsaw POP p99 above 50 ms",              meta: "still under SLA · monitoring" },
     { kind: "info",  ts: "12 min ago",  msg: "Model cache warmed on Lisbon POP",        meta: "first request triggered prefetch" },

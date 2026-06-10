@@ -382,11 +382,11 @@ const DetailScreen = () => {
                   <span style={{ display: "inline-block", width: 6, height: 12, background: "#fff" }} />
                   <span style={{ display: "inline-block", width: 6, height: 12, background: "#EF4135" }} />
                 </span>
-                <span style={{ fontSize: 13, fontWeight: 700 }}>Paris (Gcore PA-1)</span>
+                <span style={{ fontSize: 13, fontWeight: 700 }}>Paris (Cloud Avenue PA-1)</span>
               </span>
               <Icon name="lock" size={12} className="muted" />
             </div>
-            <div className="faint" style={{ fontSize: 11, marginTop: 4 }}>Locked to EU</div>
+            <div className="faint" style={{ fontSize: 11, marginTop: 4 }}>Primary · +3 Cloud Avenue regions available</div>
           </DeployField>
 
           <DeployField label="Instance type">

@@ -165,9 +165,9 @@ const EndpointScreen = () => {
           </div>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: "var(--orange)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>Act 3 · Orange AI Grid</div>
-            <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 4 }}>See how your tokens are served from 14 Orange POPs in the EU</div>
+            <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 4 }}>See how your tokens are served from {(window.POPS || []).length || 16} Orange POPs in the EU</div>
             <div style={{ fontSize: 13, color: "rgba(255,255,255,0.75)" }}>
-              This Paris deployment is delivered via the Orange edge network — every end user is served from the closest POP.
+              This {depPops.length > 1 ? `${depPops.length}-region Cloud Avenue` : primaryPop.city} deployment is delivered via the Orange edge network, every end user served from the closest POP.
             </div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--orange)", fontSize: 14, fontWeight: 700, flexShrink: 0 }}>
@@ -188,7 +188,7 @@ const ProvTimeline = ({ phase, step }) => {
     { label: "H100 hardware reservation", sub: "Gcore PA-1 · slot allocated" },
     { label: "Model pull (47 GB)",     sub: "EU mirror · ~22s at 2.1 GB/s" },
     { label: "Loading into VRAM",         sub: "vLLM init · KV cache ready" },
-    { label: "Endpoint exposed",            sub: "Health check ✓ · ready to serve" },
+    { label: "Endpoint exposed",            sub: "Health check passed · ready to serve" },
   ];
   const reached = (i) => phase === "live" ? 4 : step;
   return (

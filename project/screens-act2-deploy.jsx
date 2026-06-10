@@ -152,7 +152,7 @@ const StepInfra = ({ config, setConfig, model, hw, onNext }) => {
       </div>
 
       {/* POP picker — gated on GPU availability for this model */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginBottom: 24 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 8, marginBottom: 24 }}>
         {ALL_POPS.map(pop => {
           const selected = config.deployPops.includes(pop.id);
           const hostable = canHost(pop);
@@ -350,7 +350,7 @@ const StepSovereign = ({ config, setConfig, onNext, onBack }) => {
         <div style={{ flex: 1 }}>
           <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>Compliant configuration</div>
           <div style={{ fontSize: 12, color: "var(--ink-soft)" }}>
-            This configuration meets <strong>AI Act (Art. 28 — general-purpose models)</strong>, <strong>RGPD</strong> et <strong>NIS2</strong>. Orange Business provides the contractual attestation.
+            This configuration meets <strong>AI Act (Art. 28, general-purpose models)</strong>, <strong>GDPR</strong> and <strong>NIS2</strong>. Orange Business provides the contractual attestation.
           </div>
         </div>
         <span className="chip chip-eu" style={{ alignSelf: "flex-start" }}>
@@ -494,7 +494,7 @@ const StepScaling = ({ config, setConfig, model, hw, onBack, onLaunch, openEdgeM
             <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>Enable edge routing via the Orange network (AI Grid)</div>
             <div style={{ fontSize: 12, color: "var(--ink-soft)", lineHeight: 1.5 }}>
               Requests will be routed to the Orange edge POP closest to the end user.
-              Inference stays in Paris, but the token travels the Orange fibre backbone. <button onClick={openEdgeModal} style={{ background: "none", border: 0, color: "var(--orange)", padding: 0, fontFamily: "inherit", fontSize: 12, fontWeight: 700, cursor: "pointer", textDecoration: "underline" }}>Learn more →</button>
+              Inference stays in your Cloud Avenue regions, and the token travels the Orange fibre backbone. <button onClick={openEdgeModal} style={{ background: "none", border: 0, color: "var(--orange)", padding: 0, fontFamily: "inherit", fontSize: 12, fontWeight: 700, cursor: "pointer", textDecoration: "underline" }}>Learn more →</button>
             </div>
           </div>
           <div className={`toggle ${config.edgeRouting ? "on" : ""}`} onClick={() => setConfig(c => ({ ...c, edgeRouting: !c.edgeRouting }))}>
@@ -503,7 +503,7 @@ const StepScaling = ({ config, setConfig, model, hw, onBack, onLaunch, openEdgeM
         </div>
         {config.edgeRouting && (
           <div style={{ marginTop: 14, paddingTop: 14, borderTop: "1px dashed var(--orange)", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, fontSize: 12 }}>
-            <div><div className="faint" style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>POPs enabled</div><strong>14 EU</strong></div>
+            <div><div className="faint" style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>POPs enabled</div><strong>16 EU</strong></div>
             <div><div className="faint" style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>Target latency</div><strong>&lt; 40 ms</strong></div>
             <div><div className="faint" style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>Additional cost</div><strong>€0.00</strong></div>
           </div>
@@ -545,7 +545,7 @@ const DeploySummary = ({ config, model, hw, canLaunch, onLaunch }) => {
         <div style={{ minWidth: 0 }}>
           <div className="faint" style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>Sovereignty index</div>
           <div style={{ fontSize: 13, fontWeight: 700, marginTop: 2 }}>{sov.level ? sov.level.label : ""}</div>
-          <div style={{ fontSize: 11, color: "var(--ink-faint)" }}>Data · Tech · Juridical · Operational</div>
+          <div style={{ fontSize: 11, color: "var(--ink-faint)" }}>Data · Technical · Operational · Legal</div>
         </div>
       </div>
 
@@ -622,13 +622,13 @@ const EdgeInfoModal = ({ onClose }) => (
       <div className="kicker">Orange AI Grid</div>
       <h2 style={{ fontSize: 22, fontWeight: 700, margin: "4px 0 12px" }}>How edge routing works</h2>
       <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--ink-soft)" }}>
-        The model is deployed once on bare metal in Paris (sovereign). When a request arrives, it enters via the Orange edge POP closest to the end user, transits through the Orange fibre backbone to the GPU, and returns via the same POP.
+        The model is deployed on bare metal across your Cloud Avenue regions (sovereign). When a request arrives, it enters via the Orange edge POP closest to the end user, transits through the Orange fibre backbone to the nearest inference region, and returns via the same POP.
       </p>
       <ul style={{ fontSize: 13, lineHeight: 1.7, paddingLeft: 18 }}>
-        <li>100% Orange network traffic — no public internet transit</li>
-        <li>Perceived latency reduced 3-4× for users outside Paris</li>
-        <li>Lightweight cache replicated to POPs (KV cache, frequent embeddings)</li>
-        <li>Coverage: 14 EU POPs, Asia/Africa expansion planned 2026</li>
+        <li>100% Orange network traffic, no public internet transit</li>
+        <li>Perceived latency reduced 3-4× for users outside the inference regions</li>
+        <li>Lightweight cache replicated to POPs (NVIDIA Dynamo KV cache, frequent embeddings)</li>
+        <li>Coverage: 16 EU POPs, Asia/Africa expansion planned 2026</li>
       </ul>
       <div style={{ marginTop: 16, padding: 12, background: "var(--color-grey-100)", fontSize: 12, color: "var(--ink-soft)" }}>
         <strong>Orange differentiator :</strong> neither Gcore, OVH nor Scaleway can combine sovereign bare metal AND edge routing — Orange is the only EU operator running its own fibre network.
@@ -640,232 +640,4 @@ const EdgeInfoModal = ({ onClose }) => (
 
 Object.assign(window, { DeployScreen });
 
-// ============ Review YAML modal ============
-const ReviewYamlModal = ({ config, onClose, onConfirm }) => {
-  const [copied, setCopied] = useState2(false);
-  const [launching, setLaunching] = useState2(false);
-  const bodyRef = useRef2(null);
-  const yaml = buildYaml(config);
-
-  useEffect2(() => {
-    if (bodyRef.current) bodyRef.current.scrollTop = 0;
-  }, []);
-
-  const handleLaunch = () => {
-    setLaunching(true);
-    setTimeout(() => onConfirm(), 600);
-  };
-
-  const handleCopy = () => {
-    if (navigator.clipboard) navigator.clipboard.writeText(yaml).catch(() => {});
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1400);
-  };
-
-  return (
-    <div className="review-overlay" onClick={onClose}>
-      <div className="review-modal" onClick={e => e.stopPropagation()}>
-        <header className="review-head">
-          <div>
-            <div className="kicker" style={{ margin: 0 }}>Review · before launch</div>
-            <h2 style={{ margin: "4px 0 4px", fontSize: 20, fontWeight: 700 }}>Generated infrastructure manifest</h2>
-            <div style={{ fontSize: 12, color: "var(--ink-soft)" }}>
-              This is the exact YAML the Orange AI Orchestrator will apply. Review, copy, or launch.
-            </div>
-          </div>
-          <button onClick={onClose} className="pop-close" aria-label="Close">
-            <Icon name="close" size={16} />
-          </button>
-        </header>
-
-        <div className="review-body" ref={bodyRef}>
-          {/* Quick summary chips */}
-          <div className="review-chips">
-            <SummaryChip icon="catalog"  label="Model"      value="Mistral-Small-3-24B" />
-            <SummaryChip icon="globe"    label="Region"     value="Paris (PA-1)" />
-            <SummaryChip icon="server"   label="Hardware"   value={hwLabel(config.hardware)} />
-            <SummaryChip icon="shield"   label="Sovereign"  value="EU strict" highlight />
-            <SummaryChip icon="grid"     label="Edge"       value={config.edgeRouting ? "AI Grid · 14 POPs" : "Disabled"} highlight={config.edgeRouting} />
-            <SummaryChip icon="sliders"  label="Scale"      value={config.scaling === "scale-to-zero" ? `→0 · max ${config.maxInstances}` : `Always · max ${config.maxInstances}`} />
-          </div>
-
-          {/* YAML preview */}
-          <div className="review-yaml-wrap">
-            <div className="review-yaml-head">
-              <span className="mono" style={{ fontSize: 11, color: "rgba(255,255,255,0.65)" }}>orange-orchestrator/v1 · deployment.yaml</span>
-              <button onClick={handleCopy} className="btn btn-ghost btn-sm" style={{ color: "#fff", padding: "4px 10px" }}>
-                <Icon name={copied ? "check" : "copy"} size={12} />
-                {copied ? "Copied" : "Copy YAML"}
-              </button>
-            </div>
-            <pre className="review-yaml">{highlightYaml(yaml)}</pre>
-          </div>
-
-          {/* Pre-flight checks */}
-          <div className="review-checks">
-            <h3 style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--ink-soft)", margin: "0 0 10px" }}>Pre-flight checks</h3>
-            <Check label="Region quota available"                  status="ok"  meta="Paris PA-1 · 247 / 248 H100 free" />
-            <Check label="Model weights cached on EU mirror"       status="ok"  meta="47 GB · checksum verified" />
-            <Check label="Sovereignty policy enforced"             status="ok"  meta="AI Act + RGPD + NIS2 ready" />
-            <Check label="Edge cache plan generated"                status={config.edgeRouting ? "ok" : "skip"} meta={config.edgeRouting ? "14 POPs will warm cache" : "edge routing disabled"} />
-            <Check label="Cost cap configured"                     status="warn" meta="Cap not set — billed to your tenant. Set later in Settings." />
-          </div>
-        </div>
-
-        <footer className="review-foot">
-          <div style={{ fontSize: 12, color: "var(--ink-soft)" }}>
-            By launching you accept the Orange Business AI Orchestrator Terms · billed per second
-          </div>
-          <div style={{ display: "flex", gap: 8 }}>
-            <button onClick={onClose} className="btn btn-outline">Back to config</button>
-            <button onClick={handleLaunch} className="btn btn-primary btn-lg" disabled={launching}>
-              {launching ? (
-                <>
-                  <span style={{ width: 12, height: 12, border: "2px solid #fff", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
-                  Launching…
-                </>
-              ) : (
-                <>
-                  <Icon name="play" size={14} />
-                  Launch deployment
-                </>
-              )}
-            </button>
-          </div>
-        </footer>
-      </div>
-    </div>
-  );
-};
-
-const SummaryChip = ({ icon, label, value, highlight }) => (
-  <div className="review-chip" style={highlight ? { borderColor: "var(--orange)", background: "rgba(255,121,0,0.05)" } : null}>
-    <div className="review-chip-icon" style={highlight ? { background: "var(--orange)", color: "#fff" } : null}>
-      <Icon name={icon} size={14} />
-    </div>
-    <div>
-      <div className="review-chip-label">{label}</div>
-      <div className="review-chip-value">{value}</div>
-    </div>
-  </div>
-);
-
-const Check = ({ label, status, meta }) => {
-  const c = status === "ok"   ? { icon: "check", color: "#1e8e1e" }
-        : status === "warn"   ? { icon: "info",  color: "#b45309" }
-        : status === "skip"   ? { icon: "close", color: "var(--ink-faint)" }
-        :                       { icon: "close", color: "#dc2626" };
-  return (
-    <div className="review-check">
-      <div className="review-check-icon" style={{ color: c.color, background: status === "ok" ? "rgba(50,200,50,0.12)" : status === "warn" ? "rgba(255,204,0,0.18)" : "var(--color-grey-200)" }}>
-        <Icon name={c.icon} size={12} />
-      </div>
-      <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 13, fontWeight: 600 }}>{label}</div>
-        <div style={{ fontSize: 11, color: "var(--ink-faint)" }}>{meta}</div>
-      </div>
-      <span style={{ fontSize: 11, fontWeight: 700, color: c.color, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-        {status === "ok" ? "Pass" : status === "warn" ? "Warning" : status === "skip" ? "Skipped" : "Fail"}
-      </span>
-    </div>
-  );
-};
-
 const hwLabel = (h) => h === "h100" ? "1× H100 80GB" : h === "l40s" ? "2× L40S 48GB" : "1× A100 80GB";
-
-// Build a deterministic YAML manifest from the deploy config
-function buildYaml(c) {
-  const hw = c.hardware === "h100" ? "h100-80gb"
-           : c.hardware === "l40s" ? "l40s-48gb"
-           :                          "a100-80gb";
-  const replicas = c.hardware === "l40s" ? 2 : 1;
-  return `apiVersion: orange-orchestrator/v1
-kind: Deployment
-metadata:
-  name: mistral-small-24b
-  region: paris-1
-  tenant: orange-business
-spec:
-  model:
-    source: huggingface
-    repo: mistralai/Mistral-Small-3-24B-Instruct
-    revision: main
-    weights: safetensors
-    sha256: c1b8...verified
-  infrastructure:
-    provider: gcore
-    site: PA-1
-    hardware: ${hw}
-    replicas: ${replicas}
-    allocation: ${c.allocation === "baremetal" ? "bare-metal-dedicated" : "shared-container"}
-  sovereignty:
-    strict: true
-    dataProcessingRegion: EU
-    logsRegion: ${c.logsEU ? "EU" : "GLOBAL"}
-    encryption:
-      atRest: ${c.hsm ? "hsm-eu-anssi" : "aes256"}
-      keyHolder: orange-business
-    attestations:
-      - ai-act-article-28
-      - gdpr
-      - nis2
-  scaling:
-    strategy: ${c.scaling === "scale-to-zero" ? "scale-to-zero" : "always-on"}
-    idleTimeoutSeconds: ${c.scaling === "scale-to-zero" ? 300 : "null"}
-    minReplicas: ${c.scaling === "scale-to-zero" ? 0 : 1}
-    maxReplicas: ${c.maxInstances}
-    targetGpuUtilization: 0.75
-  routing:
-    edge:
-      enabled: ${c.edgeRouting}
-      network: orange-fibre
-      pops: 14
-      strategy: nearest-user
-    public:
-      url: https://api.gcore.orange-ai.eu/v1/chat/completions
-      openaiCompatible: true
-  cost:
-    estimateHourly: €${c.hardware === "h100" ? "2.40" : c.hardware === "l40s" ? "1.95" : "1.60"}
-    billingGranularity: second
-  observability:
-    metrics: sovereign-prometheus-eu
-    logs: sovereign-s3-paris
-    retentionDays: 30
-`;
-}
-
-// Highlight YAML for the preview pane. Returns an array of React nodes.
-function highlightYaml(yaml) {
-  return yaml.split("\n").map((line, i) => {
-    if (line.trim() === "") return <span key={i}>{"\n"}</span>;
-    const indent = line.match(/^\s*/)[0];
-    const rest = line.slice(indent.length);
-    // Comment line
-    if (rest.startsWith("#")) return <span key={i}>{indent}<span style={{ color: "#6b7280" }}>{rest}</span>{"\n"}</span>;
-    // List item
-    if (rest.startsWith("- ")) {
-      return <span key={i}>{indent}<span style={{ color: "#a78bfa" }}>- </span><span style={{ color: "#fbbf24" }}>{rest.slice(2)}</span>{"\n"}</span>;
-    }
-    // key: value
-    const colonIdx = rest.indexOf(":");
-    if (colonIdx > -1) {
-      const key = rest.slice(0, colonIdx);
-      const value = rest.slice(colonIdx + 1).trimStart();
-      return (
-        <span key={i}>
-          {indent}
-          <span style={{ color: "#60a5fa" }}>{key}</span>
-          <span style={{ color: "#9ca3af" }}>:</span>
-          {value && <> <span style={{ color: yamlValueColor(value) }}>{value}</span></>}
-          {"\n"}
-        </span>
-      );
-    }
-    return <span key={i}>{line}{"\n"}</span>;
-  });
-}
-function yamlValueColor(v) {
-  if (v === "true" || v === "false" || v === "null") return "#c084fc";
-  if (/^-?\d+(\.\d+)?$/.test(v)) return "#fbbf24";
-  return "#fbbf24";
-}

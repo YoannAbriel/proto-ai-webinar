@@ -204,7 +204,7 @@ const DynamoPanel = () => {
       <h3 style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--ink-soft)", margin: "0 0 10px", display: "flex", alignItems: "center", gap: 6 }}>
         <Icon name="cpu" size={14} style={{ color: "#76b900" }} /> NVIDIA Dynamo
       </h3>
-      <div style={{ fontSize: 24, fontWeight: 700, fontFamily: "var(--font-mono)", marginBottom: 4 }}>{D.kvReusePct}.4<span style={{ fontSize: 12, color: "var(--ink-faint)" }}>%</span></div>
+      <div style={{ fontSize: 24, fontWeight: 700, fontFamily: "var(--font-mono)", marginBottom: 4 }}>{D.kvReusePct}<span style={{ fontSize: 12, color: "var(--ink-faint)" }}>%</span></div>
       <div style={{ fontSize: 11, color: "var(--ink-soft)", marginBottom: 12 }}>KV cache reuse · last hour</div>
       <div style={{ height: 6, background: "var(--color-grey-200)" }}>
         <div style={{ width: `${D.kvReusePct}%`, height: "100%", background: "#76b900" }} />
@@ -214,7 +214,7 @@ const DynamoPanel = () => {
         <div><div className="faint" style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.05em" }}>Decode</div><strong className="mono">{D.decodeMsPerTok} ms/tok</strong></div>
       </div>
       <div style={{ marginTop: 10, fontSize: 11, color: "var(--ink-faint)" }}>
-        Disaggregated prefill/decode · +{D.tokpsGainPct}% throughput. Cache replicated to all 14 POPs.
+        Disaggregated prefill/decode · +{D.tokpsGainPct}% throughput. Cache replicated to every edge POP.
       </div>
     </div>
   );

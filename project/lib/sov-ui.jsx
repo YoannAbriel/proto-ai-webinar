@@ -41,7 +41,7 @@ const SovDimensions = ({ dims = [], dark = false }) => (
           <span style={{ fontSize: 12, fontWeight: 700, fontFamily: "var(--font-mono)", color: dark ? "rgba(255,255,255,0.8)" : "var(--ink-soft)" }}>{d.score}</span>
         </div>
         <div style={{ height: 5, background: dark ? "rgba(255,255,255,0.12)" : "var(--color-grey-200)" }}>
-          <div style={{ width: `${d.score}%`, height: "100%", background: d.score >= 75 ? "var(--orange)" : d.score >= 60 ? "var(--color-warning)" : "var(--color-error)", transition: "width var(--dur-base) var(--easing-standard)" }} />
+          <div style={{ width: `${d.score}%`, height: "100%", background: d.score >= 75 ? "#1e8e1e" : d.score >= 60 ? "var(--color-warning)" : "var(--color-error)", transition: "width var(--dur-base) var(--easing-standard)" }} />
         </div>
         <div style={{ fontSize: 11, color: dark ? "rgba(255,255,255,0.55)" : "var(--ink-faint)", marginTop: 3 }}>{d.detail}</div>
       </div>

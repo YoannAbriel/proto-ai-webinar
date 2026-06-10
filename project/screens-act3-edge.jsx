@@ -44,25 +44,25 @@ const EdgeScreen = () => {
             icon="bank" sector="Banking & Finance"
             title="Regulatory compliance + trading latency"
             bullets={["DORA & MiCA ready", "< 40ms cross-EU", "HSM audit trail"]}
-            color="#1e40af"
+            color="var(--eu)"
           />
           <UseCaseCard
             icon="health" sector="Healthcare"
             title="Patient data never leaves the EU"
             bullets={["Strict GDPR Article 9", "HDS hosting", "End-to-end encryption"]}
-            color="#16a34a"
+            color="var(--color-success)"
           />
           <UseCaseCard
             icon="shield" sector="Public sector"
             title="Strict sovereignty + national scale"
-            bullets={["SecNumCloud-compatible", "14 national POPs", "Predictable cost"]}
+            bullets={["SecNumCloud-compatible", "Pan-EU POP coverage", "Predictable cost"]}
             color="#000"
           />
           <UseCaseCard
             icon="factory" sector="Industry & Energy"
             title="Real-time edge inference on remote sites"
             bullets={["Plants & refineries", "99.99% reliability", "Dedicated Orange 5G/fibre"]}
-            color="#ea580c"
+            color="var(--orange)"
           />
         </div>
       </div>
@@ -73,7 +73,7 @@ const EdgeScreen = () => {
           <div className="kicker">Built on Orange Cloud Avenue</div>
           <h3 style={{ fontSize: 18, fontWeight: 700, margin: "2px 0 6px" }}>Sovereign cloud, on our heritage as a world-class telecom operator</h3>
           <p style={{ fontSize: 13, color: "var(--ink-soft)", margin: "0 0 14px", maxWidth: 620 }}>
-            Four strategic cloud regions (Oslo, Stockholm, Berlin, Paris) with more Orange DCs across the EU. NVIDIA inference frameworks, Gcore GPU infrastructure, water-efficient datacentres powered by low-carbon energy.
+            Four strategic cloud regions (Oslo, Stockholm, Berlin, Paris) with more Orange DCs across the EU. NVIDIA inference frameworks, Gcore (an EU sovereign GPU provider, Luxembourg-based), water-efficient datacentres powered by low-carbon energy.
           </p>
           {window.ComplianceCerts ? <ComplianceCerts /> : null}
         </div>
@@ -202,7 +202,7 @@ const SovereigntyCard = () => {
       </div>
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
         <span className="chip chip-success" style={{ fontSize: 10 }}>AI Act</span>
-        <span className="chip chip-success" style={{ fontSize: 10 }}>RGPD</span>
+        <span className="chip chip-success" style={{ fontSize: 10 }}>GDPR</span>
         <span className="chip chip-success" style={{ fontSize: 10 }}>NIS2</span>
         <span className="chip chip-success" style={{ fontSize: 10 }}>SecNumCloud-ready</span>
       </div>
@@ -274,7 +274,7 @@ const CostCard = () => {
     <div className="panel" style={{ padding: 24, display: "flex", flexDirection: "column" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
         <Icon name="chart" size={20} className="text-primary" />
-        <div style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--orange)" }}>Card 3 · Cost</div>
+        <div style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--orange)" }}>Card 4 · Cost</div>
       </div>
       <h3 style={{ fontSize: 20, fontWeight: 700, margin: "0 0 18px" }}>Savings on 1M tokens/day</h3>
 
