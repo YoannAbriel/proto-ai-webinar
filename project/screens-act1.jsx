@@ -259,9 +259,13 @@ const ModelCard = ({ m, onOpen }) => (
           <HuggingFaceIcon size={14} />
           {m.org}
         </div>
-        <div style={{ fontSize: 14, fontWeight: 700, lineHeight: 1.2, wordBreak: "break-word" }}>{m.name}</div>
+        <div style={{
+          fontSize: 14, fontWeight: 700, lineHeight: 1.2, wordBreak: "break-word",
+          minHeight: "2.4em",                 // reserve 2 lines so every card aligns
+          display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
+        }} title={m.name}>{m.name}</div>
       </div>
-      {m.featured && <span className="chip chip-orange" style={{ fontSize: 10 }}>Demo flagship</span>}
+      {m.featured && <span className="chip chip-orange" style={{ fontSize: 10, flexShrink: 0 }}>Demo flagship</span>}
     </div>
     <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
       <span className="chip chip-outline">{m.task}</span>
@@ -289,7 +293,7 @@ const ModelCard = ({ m, onOpen }) => (
       </span>
       <span style={{ marginLeft: "auto" }}>{m.updated}</span>
     </div>
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 8, borderTop: "1px solid var(--line)" }}>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 8, borderTop: "1px solid var(--line)", marginTop: "auto" }}>
       <span className="chip chip-eu">
         <EUFlag size={10} />
         EU deployable
