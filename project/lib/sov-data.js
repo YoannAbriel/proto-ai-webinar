@@ -72,7 +72,7 @@ const hwLabelFull = (id) => { const h = hwFor(id); return `${h.count}× ${h.gpu}
 const DYNAMO = {
   name: "NVIDIA Dynamo",
   tagline: "Disaggregated serving + KV-cache reuse",
-  desc: "Prefill and decode run on separate GPU pools; the KV cache is reused across requests and replicated to the edge POPs.",
+  desc: "Prefill and decode run on separate GPU pools (NIXL transfers the KV cache GPU-to-GPU); a KV-aware router reuses the cache across requests to skip redundant prefill.",
   tokpsGainPct: 35,     // throughput uplift
   ttftReductionPct: 42, // time-to-first-token reduction
   kvReusePct: 72,       // KV cache reuse rate (matches the live metric)

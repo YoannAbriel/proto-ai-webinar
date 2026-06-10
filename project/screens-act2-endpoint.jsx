@@ -77,7 +77,7 @@ const EndpointScreen = () => {
               </span>
               <span>·</span>
               <span>{depHw.count || 1}× {depHw.gpu || "H100"} {depHw.vram || 80}GB</span>
-              {depCfg.dynamo && <><span>·</span><span className="chip" style={{ fontSize: 10, background: "rgba(118,185,0,0.14)", color: "#4d7c00" }}><Icon name="cpu" size={10} />Dynamo</span></>}
+              {depCfg.dynamo && <><span>·</span><span className="chip" style={{ fontSize: 10, background: "rgba(118,185,0,0.14)", color: "#4d7c00" }}><img src="assets/logos/nvidia.svg" alt="NVIDIA" style={{ height: 10, width: "auto", display: "block" }} />Dynamo</span></>}
               <span>·</span>
               <span className="chip chip-eu" style={{ fontSize: 10 }}><EUFlag size={10} />Sovereign {sov.score}/100</span>
             </div>

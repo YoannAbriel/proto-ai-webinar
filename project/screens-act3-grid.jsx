@@ -660,15 +660,15 @@ const HowItWorks = () => {
     {
       n: "01",
       title: "Deployed across Cloud Avenue regions",
-      sub: "Oslo · Stockholm · Berlin · Paris",
-      desc: "Bare-metal inference on NVIDIA H100 GPUs in Orange Cloud Avenue regions. Choose low-carbon Nordic or French grids for residency and latency. Data stays in the EU.",
+      sub: "NVIDIA Dynamo · Oslo · Stockholm · Berlin · Paris",
+      desc: "Bare-metal inference on NVIDIA H100 GPUs, served with NVIDIA Dynamo (disaggregated prefill/decode). Choose low-carbon Nordic or French grids. Data stays in the EU.",
       icon: "server",
     },
     {
       n: "02",
-      title: "KV cache replicated to every edge POP",
-      sub: "NVIDIA Dynamo · disaggregated serving",
-      desc: "Each Orange edge POP keeps a local NVIDIA Dynamo KV cache. First hop = closest POP.",
+      title: "Lightweight cache at every edge POP",
+      sub: "Orange edge network",
+      desc: "Each Orange edge POP keeps a lightweight inference cache (frequent prompts, embeddings). First hop = the closest POP.",
       icon: "grid",
     },
     {

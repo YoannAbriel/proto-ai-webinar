@@ -214,7 +214,7 @@ const DynamoPanel = () => {
         <div><div className="faint" style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.05em" }}>Decode</div><strong className="mono">{D.decodeMsPerTok} ms/tok</strong></div>
       </div>
       <div style={{ marginTop: 10, fontSize: 11, color: "var(--ink-faint)" }}>
-        Disaggregated prefill/decode · +{D.tokpsGainPct}% throughput. Cache replicated to every edge POP.
+        Disaggregated prefill/decode · KV-aware routing reuses the cache to skip prefill · +{D.tokpsGainPct}% throughput.
       </div>
     </div>
   );

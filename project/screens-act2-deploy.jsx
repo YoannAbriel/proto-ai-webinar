@@ -585,7 +585,7 @@ const DeploySummary = ({ config, model, hw, canLaunch, onLaunch }) => {
 
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
           <span className="chip chip-eu"><EUFlag size={10} />Sovereign</span>
-          {config.dynamo && <span className="chip" style={{ background: "rgba(118,185,0,0.14)", color: "#4d7c00" }}><Icon name="cpu" size={10} />Dynamo</span>}
+          {config.dynamo && <span className="chip" style={{ background: "rgba(118,185,0,0.14)", color: "#4d7c00" }}><img src="assets/logos/nvidia.svg" alt="NVIDIA" style={{ height: 10, width: "auto", display: "block" }} />Dynamo</span>}
           {config.edgeRouting && <span className="chip chip-orange"><Icon name="grid" size={10} />Orange Edge</span>}
           <span className="chip chip-success"><span className="dot" />AI Act ready</span>
         </div>
@@ -629,7 +629,7 @@ const EdgeInfoModal = ({ onClose }) => (
       <ul style={{ fontSize: 13, lineHeight: 1.7, paddingLeft: 18 }}>
         <li>100% Orange network traffic, no public internet transit</li>
         <li>Perceived latency reduced 3-4× for users outside the inference regions</li>
-        <li>Lightweight cache replicated to POPs (NVIDIA Dynamo KV cache, frequent embeddings)</li>
+        <li>Lightweight inference cache at each Orange edge POP (frequent prompts, embeddings)</li>
         <li>Coverage: pan-EU edge POPs, Asia/Africa expansion planned 2026</li>
       </ul>
       <div style={{ marginTop: 16, padding: 12, background: "var(--color-grey-100)", fontSize: 12, color: "var(--ink-soft)" }}>
