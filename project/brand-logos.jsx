@@ -192,11 +192,10 @@ const ORG_BRANDS = {
   "Google":         { src: "assets/logos/google.svg",       bg: "#fff", border: true, padded: true },
   "NVIDIA":         { src: "assets/logos/nvidia.svg",       bg: "#fff", border: true, padded: true },
   "Databricks":     { src: "assets/logos/databricks.svg",   bg: "#fff", border: true, padded: true },
-  "LLaVA":          { glyph: "llava", bg: "#dc2626" },
-  // BAAI brand identity is "智源" / clean wordmark on indigo. Real SVG not freely available;
-  // wordmark in BAAI's signature deep indigo so the org reads as branded, not placeholder.
-  "BAAI":           { wordmark: "BAAI", bg: "#1B2A6B", fg: "#fff" },
-  "mixedbread":     { wordmark: "mxbai", bg: "#FCD34D", fg: "#1F1A05" },
+  // Real HuggingFace org avatars (the actual logos shown on huggingface.co).
+  "LLaVA":          { src: "assets/logos/llava.webp",       bg: "#fff", border: true, padded: false },
+  "BAAI":           { src: "assets/logos/baai.webp",        bg: "#fff", border: true, padded: true },
+  "mixedbread":     { src: "assets/logos/mixedbread.webp",  bg: "#fff", border: true, padded: true },
 };
 
 // Coloured square containing the brand's logo (image or inline fallback).
