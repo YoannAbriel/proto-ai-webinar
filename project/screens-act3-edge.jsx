@@ -141,7 +141,7 @@ const LatencyCard = () => {
 
       <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 16 }}>
         <BarRow label="Without AI Grid" sub="Paris central only" value={142} max={150} color="var(--color-grey-700)" animate={animated} />
-        <BarRow label="With Orange AI Grid" sub="14 edge POPs" value={38} max={150} color="var(--orange)" animate={animated} highlight />
+        <BarRow label="With Orange AI Grid" sub={`${(window.POPS || []).length || 11} edge POPs`} value={38} max={150} color="var(--orange)" animate={animated} highlight />
       </div>
 
       <div style={{ background: "rgba(255,121,0,0.06)", padding: 14, marginTop: "auto" }}>
