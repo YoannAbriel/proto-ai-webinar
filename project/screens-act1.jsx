@@ -64,6 +64,10 @@ const TASK_OPTIONS = ["All tasks", "Text generation", "Code", "Vision", "Embeddi
 // Open-source = OSI licenses (Apache/MIT/BSD); the rest (Llama, Qwen…) are
 // custom/community licenses, grouped as "Commercial".
 const isOpenSourceLicense = (lic) => /apache|mit|bsd/i.test(lic || "");
+// AI Act (Art. 53) asks GPAI providers to publish a summary of training data.
+// These providers do not publish a full summary today, so they are not "AI Act ready".
+const AI_ACT_OPAQUE = new Set(["DeepSeek", "Qwen / Alibaba"]);
+const isAiActReady = (m) => !AI_ACT_OPAQUE.has(m.org);
 
 const CatalogueScreen = () => {
   const { openModel } = useNav();
@@ -73,6 +77,7 @@ const CatalogueScreen = () => {
     size: "Any size",
     privateGpu: true,
     lowCarbon: false,
+    aiActReady: false,
   });
   const [search, setSearch] = useState1("");
 
@@ -87,6 +92,7 @@ const CatalogueScreen = () => {
       if (filters.license === "Commercial" && isOpenSourceLicense(m.license)) return false;
       if (sizeToB(m.size) > sizeCap) return false;
       if (filters.lowCarbon && modelCarbonFR(m.id) > 150) return false;
+      if (filters.aiActReady && !isAiActReady(m)) return false;
       return true;
     });
   }, [search, filters]);
@@ -135,6 +141,7 @@ const CatalogueScreen = () => {
             <FilterChip label="License" value={filters.license} options={LICENSE_OPTIONS} onChange={v => setFilters(f => ({ ...f, license: v }))} />
             <ToggleChip label="Private GPUs" on={filters.privateGpu} onClick={() => setFilters(f => ({ ...f, privateGpu: !f.privateGpu }))} />
             <ToggleChip label="Low carbon" icon="leaf" on={filters.lowCarbon} onClick={() => setFilters(f => ({ ...f, lowCarbon: !f.lowCarbon }))} />
+            <ToggleChip label="AI Act ready" icon="shield" on={filters.aiActReady} onClick={() => setFilters(f => ({ ...f, aiActReady: !f.aiActReady }))} />
             <span style={{ marginLeft: "auto", fontSize: 12, color: "var(--ink-faint)" }}>
               <strong style={{ color: "#000" }}>{filtered.length}</strong> of {MODELS.length} models
             </span>
@@ -147,7 +154,7 @@ const CatalogueScreen = () => {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 14 }}>
           {filtered.length === 0 && (
             <div className="panel" style={{ padding: 32, textAlign: "center", color: "var(--ink-faint)", gridColumn: "1 / -1" }}>
-              No model matches these filters. <button onClick={() => { setSearch(""); setFilters({ task: "All tasks", license: "All licenses", size: "Any size", privateGpu: true, lowCarbon: false }); }} style={{ background: "none", border: 0, color: "var(--orange)", fontWeight: 700, cursor: "pointer", fontFamily: "inherit", fontSize: 13 }}>Reset filters</button>
+              No model matches these filters. <button onClick={() => { setSearch(""); setFilters({ task: "All tasks", license: "All licenses", size: "Any size", privateGpu: true, lowCarbon: false, aiActReady: false }); }} style={{ background: "none", border: 0, color: "var(--orange)", fontWeight: 700, cursor: "pointer", fontFamily: "inherit", fontSize: 13 }}>Reset filters</button>
             </div>
           )}
           {filtered.map(m => <ModelCard key={m.id} m={m} onOpen={() => openModel(m.id)} />)}
