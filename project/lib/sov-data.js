@@ -59,7 +59,7 @@ const MODEL_HW = {
   "mistral-small-24b": { gpu: "H100", count: 1, vram: 80, alt: "2× L40S 48GB", costPerH: 2.40, tokps: 142, unit: "tok/s", powerKw: 0.70, weightGb: 47,  ctx: "32k",  precision: "bf16" },
   "mistral-large-2411":{ gpu: "H100", count: 4, vram: 80, alt: "8× A100 80GB", costPerH: 9.60, tokps: 58,  unit: "tok/s", powerKw: 2.80, weightGb: 228, ctx: "128k", precision: "bf16" },
   "mixtral-8x7b":      { gpu: "H100", count: 2, vram: 80, alt: "2× A100 80GB", costPerH: 4.80, tokps: 115, unit: "tok/s", powerKw: 1.40, weightGb: 87,  ctx: "32k",  precision: "bf16" },
-  "mistral-nemo":      { gpu: "A100", count: 1, vram: 80, alt: "2× L40S 48GB", costPerH: 1.60, tokps: 120, unit: "tok/s", powerKw: 0.40, weightGb: 24,  ctx: "128k", precision: "bf16" },
+  "mistral-nemo":      { gpu: "L40S", count: 1, vram: 48, alt: "1× A100 80GB", costPerH: 1.20, tokps: 120, unit: "tok/s", powerKw: 0.35, weightGb: 24,  ctx: "128k", precision: "bf16" },
   "codestral-22b":     { gpu: "A100", count: 1, vram: 80, alt: "1× H100 80GB", costPerH: 1.60, tokps: 105, unit: "tok/s", powerKw: 0.40, weightGb: 44,  ctx: "32k",  precision: "bf16" },
   "mistral-7b":        { gpu: "L40S", count: 1, vram: 48, alt: "1× A100 40GB", costPerH: 1.20, tokps: 175, unit: "tok/s", powerKw: 0.35, weightGb: 14,  ctx: "32k",  precision: "bf16" },
   "pixtral-12b":       { gpu: "A100", count: 1, vram: 80, alt: "1× H100 80GB", costPerH: 1.60, tokps: 90,  unit: "tok/s", powerKw: 0.40, weightGb: 25,  ctx: "128k", precision: "bf16" },
@@ -75,13 +75,13 @@ const MODEL_HW = {
   "qwq-32b":           { gpu: "H100", count: 1, vram: 80, alt: "2× L40S 48GB", costPerH: 2.40, tokps: 110, unit: "tok/s", powerKw: 0.70, weightGb: 64,  ctx: "32k",  precision: "bf16" },
   // DeepSeek
   "deepseek-r1-distill":{ gpu: "H100", count: 1, vram: 80, alt: "2× L40S 48GB", costPerH: 2.40, tokps: 110, unit: "tok/s", powerKw: 0.70, weightGb: 64,  ctx: "128k", precision: "bf16" },
-  "deepseek-v3":       { gpu: "H100", count: 8, vram: 80, alt: "—",            costPerH: 19.20, tokps: 48, unit: "tok/s", powerKw: 5.60, weightGb: 685, ctx: "128k", precision: "fp8" },
+  "deepseek-v3":       { gpu: "H200", count: 8, vram: 141, alt: "16× H100 80GB", costPerH: 28.00, tokps: 48, unit: "tok/s", powerKw: 5.60, weightGb: 685, ctx: "128k", precision: "fp8" },
   "deepseek-coder-v2": { gpu: "H100", count: 8, vram: 80, alt: "—",            costPerH: 19.20, tokps: 65, unit: "tok/s", powerKw: 5.60, weightGb: 440, ctx: "128k", precision: "bf16" },
   // Google
   "gemma-2-27b":       { gpu: "H100", count: 1, vram: 80, alt: "2× L40S 48GB", costPerH: 2.40, tokps: 120, unit: "tok/s", powerKw: 0.70, weightGb: 54,  ctx: "8k",   precision: "bf16" },
   "gemma-2-9b":        { gpu: "L40S", count: 1, vram: 48, alt: "1× A100 40GB", costPerH: 1.20, tokps: 150, unit: "tok/s", powerKw: 0.35, weightGb: 18,  ctx: "8k",   precision: "bf16" },
   // Microsoft
-  "phi-4":             { gpu: "A100", count: 1, vram: 80, alt: "1× H100 80GB", costPerH: 1.60, tokps: 110, unit: "tok/s", powerKw: 0.40, weightGb: 29,  ctx: "16k",  precision: "bf16" },
+  "phi-4":             { gpu: "L40S", count: 1, vram: 48, alt: "1× A100 80GB", costPerH: 1.20, tokps: 110, unit: "tok/s", powerKw: 0.35, weightGb: 29,  ctx: "16k",  precision: "bf16" },
   "phi-3-mini":        { gpu: "L4",   count: 1, vram: 24, alt: "1× A10 24GB",  costPerH: 0.45, tokps: 210, unit: "tok/s", powerKw: 0.072, weightGb: 7.6, ctx: "4k",  precision: "bf16" },
   // NVIDIA / Databricks
   "nemotron-70b":      { gpu: "H100", count: 2, vram: 80, alt: "4× L40S 48GB", costPerH: 4.80, tokps: 86,  unit: "tok/s", powerKw: 1.40, weightGb: 132, ctx: "128k", precision: "bf16" },
@@ -100,14 +100,13 @@ const hwLabelFull = (id) => { const h = hwFor(id); return `${h.count}× ${h.gpu}
 // ============ Realistic pricing & carbon, driven by the deploy settings ============
 // Per-GPU hourly rate by tier. The model's GPU count scales the bill; L40S needs
 // ~2× the cards to match the memory of the recommended tier.
-const PER_GPU_HOUR = { h100: 2.40, a100: 1.60, l40s: 1.20, l4: 0.45 };
-const tierMult = (tier) => (String(tier).toLowerCase() === "l40s" ? 2 : 1);
+const PER_GPU_HOUR = { h200: 3.50, h100: 2.40, a100: 1.60, l40s: 1.20, l4: 0.45 };
 // Hourly cost of one region serving `modelId` on the chosen hardware `tier`.
 function tierHourly(modelId, tier) {
   const h = hwFor(modelId);
   const t = String(tier || h.gpu).toLowerCase();
   const perGpu = PER_GPU_HOUR[t] != null ? PER_GPU_HOUR[t] : PER_GPU_HOUR.h100;
-  return +(perGpu * (h.count || 1) * tierMult(t)).toFixed(2);
+  return +(perGpu * (h.count || 1)).toFixed(2);
 }
 // Total active €/h across all deployed regions.
 function deployHourly(modelId, tier, regionCount) {

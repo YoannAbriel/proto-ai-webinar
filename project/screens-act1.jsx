@@ -42,11 +42,13 @@ const sizeToB = (s) => {
 // Carbon for 1M tokens served on the French (low-carbon) grid — drives the card + the filter.
 const modelCarbonFR = (id) => (window.gco2PerMtok ? window.gco2PerMtok(id, "FR") : 0);
 
+// Orange Business recommends European / allied open models (no Chinese-origin
+// models, no GPU-vendor models, for sovereignty and optics).
 const RECOMMENDED = [
-  { id: "mistral-small-24b",  name: "Mistral-Small-3-24B",   org: "Mistral AI",     note: "Sovereign · native French" },
-  { id: "deepseek-r1-distill",name: "DeepSeek-R1-Distill-32B",org: "DeepSeek",       note: "Reasoning · MIT" },
-  { id: "qwen-2-5-coder-32b", name: "Qwen2.5-Coder-32B",     org: "Qwen / Alibaba", note: "Code · Apache 2.0" },
-  { id: "bge-m3",             name: "bge-m3 (Embeddings)",   org: "BAAI",           note: "Multilingual RAG" },
+  { id: "mistral-small-24b", name: "Mistral-Small-3-24B", org: "Mistral AI", note: "Sovereign · native French" },
+  { id: "llama-3-3-70b",     name: "Llama-3.3-70B",       org: "Meta",       note: "Open weights · multilingual" },
+  { id: "mixtral-8x7b",      name: "Mixtral-8x7B",        org: "Mistral AI", note: "European · Apache 2.0" },
+  { id: "mxbai-embed",       name: "mxbai-embed-large",   org: "mixedbread", note: "Embeddings · Berlin-based" },
 ];
 
 // ============ Screen 1: Catalogue ============

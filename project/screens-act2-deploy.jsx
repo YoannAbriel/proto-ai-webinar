@@ -194,9 +194,9 @@ const StepInfra = ({ config, setConfig, model, hw, onNext }) => {
           const n = hw.count || 1;
           const baseTps = hw.unit === "tok/s" ? hw.tokps : 120;
           return [
-            { id: "h100", title: `${n}× H100 80GB`,      tpsF: 1.0,  speed: "fastest" },
-            { id: "l40s", title: `${n * 2}× L40S 48GB`,  tpsF: 0.7,  speed: "economical" },
-            { id: "a100", title: `${n}× A100 80GB`,      tpsF: 0.82, speed: "balanced" },
+            { id: "h100", title: `${n}× H100 80GB`,  tpsF: 1.0,  speed: "fastest" },
+            { id: "l40s", title: `${n}× L40S 48GB`,  tpsF: 0.7,  speed: "economical" },
+            { id: "a100", title: `${n}× A100 80GB`,  tpsF: 0.82, speed: "balanced" },
           ].map(h => {
             const recommended = (hw.gpu || "h100").toLowerCase() === h.id;
             const price = window.tierHourly ? window.tierHourly(model.id, h.id) : 2.40;
