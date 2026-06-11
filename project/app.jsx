@@ -34,8 +34,13 @@ const App = () => {
     if (!SCREENS[next]) return;
     setScreen(next);
     window.history.replaceState(null, "", `#/${next}`);
-    document.querySelector(".main")?.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
+
+  // Always land at the top on every screen change (runs after the new screen
+  // renders, so it is reliable even when the next screen is taller).
+  useEffectA(() => {
+    document.querySelector(".main")?.scrollTo({ top: 0 });
+  }, [screen]);
 
   // Pick a model and jump to a screen in one call (defaults to the detail page).
   const openModel = useCallbackA((id, next = "detail") => {

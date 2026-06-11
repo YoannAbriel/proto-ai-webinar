@@ -21,6 +21,12 @@ const DeployScreen = () => {
   });
   const [edgeModalOpen, setEdgeModalOpen] = useState2(false);
 
+  // Each step is a full screen of content — jump back to the top when it changes
+  // so the user never lands at the bottom of the next step.
+  useEffect2(() => {
+    document.querySelector(".main")?.scrollTo({ top: 0 });
+  }, [step]);
+
   const canLaunch = step === 3;
   const handleLaunch = () => {
     // Carry the configuration into the live endpoint so it reflects real choices.
