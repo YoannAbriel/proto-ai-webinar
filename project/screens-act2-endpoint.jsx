@@ -107,7 +107,7 @@ const EndpointScreen = () => {
         <KPI label={`Avg. latency (${primaryPop.city})`} value={phase === "live" ? String(primaryPop.latency ? 80 + primaryPop.latency : 84) : "—"} unit="ms" hint="P50 · vs 100ms target" loading={phase !== "live"} good />
         <KPI label="Throughput" value={phase === "live" ? String(effTps) : "—"} unit="tok/s" hint={depCfg.dynamo ? `per ${depHw.gpu || "H100"} · Dynamo +35%` : `per ${depHw.gpu || "H100"} GPU`} loading={phase !== "live"} />
         <KPI label="Requests (last 5min)" value={phase === "live" ? reqCount.toLocaleString() : "—"} unit="" hint="↑ growing" loading={phase !== "live"} animated />
-        <KPI label="Current cost" value={`€${((depHw.costPerH || 2.40) * depPops.length).toFixed(2)}`} unit="/h" hint={`${depPops.length}× ${depHw.gpu || "H100"} bare metal`} loading={phase !== "live"} />
+        <KPI label="Current cost" value={`€${(window.deployHourly ? window.deployHourly(depModel.id, depCfg.hardware, depPops.length) : (depHw.costPerH || 2.40) * depPops.length).toFixed(2)}`} unit="/h" hint={`${depPops.length} region${depPops.length > 1 ? "s" : ""} · ${depHw.count || 1}× ${depHw.gpu || "H100"}`} loading={phase !== "live"} />
       </div>
 
       {/* Tabs */}

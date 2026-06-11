@@ -190,24 +190,29 @@ const StepInfra = ({ config, setConfig, model, hw, onNext }) => {
 
       <SectionLabel>Hardware · recommended for {model.name}</SectionLabel>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 28 }}>
-        {[
-          { id: "h100", title: "1× H100 80GB", tps: 142, price: "€2.40" },
-          { id: "l40s", title: "2× L40S 48GB", tps: 128, price: "€1.95" },
-          { id: "a100", title: "1× A100 80GB", tps: 98,  price: "€1.60" },
-        ].map(h => {
-          const recommended = (hw.gpu || "h100").toLowerCase() === h.id;
-          return (
-            <RadioCard
-              key={h.id}
-              selected={config.hardware === h.id}
-              onClick={() => setConfig(c => ({ ...c, hardware: h.id }))}
-              title={h.title}
-              note={`${recommended ? "Recommended" : "Compatible"} · ${h.tps} tok/s`}
-              extra={recommended && <span className="chip chip-orange" style={{ fontSize: 10 }}>Recommended</span>}
-              price={h.price + "/h"}
-            />
-          );
-        })}
+        {(() => {
+          const n = hw.count || 1;
+          const baseTps = hw.unit === "tok/s" ? hw.tokps : 120;
+          return [
+            { id: "h100", title: `${n}× H100 80GB`,      tpsF: 1.0,  speed: "fastest" },
+            { id: "l40s", title: `${n * 2}× L40S 48GB`,  tpsF: 0.7,  speed: "economical" },
+            { id: "a100", title: `${n}× A100 80GB`,      tpsF: 0.82, speed: "balanced" },
+          ].map(h => {
+            const recommended = (hw.gpu || "h100").toLowerCase() === h.id;
+            const price = window.tierHourly ? window.tierHourly(model.id, h.id) : 2.40;
+            return (
+              <RadioCard
+                key={h.id}
+                selected={config.hardware === h.id}
+                onClick={() => setConfig(c => ({ ...c, hardware: h.id }))}
+                title={h.title}
+                note={`${recommended ? "Recommended" : h.speed} · ${Math.round(baseTps * h.tpsF)} tok/s`}
+                extra={recommended && <span className="chip chip-orange" style={{ fontSize: 10 }}>Recommended</span>}
+                price={`€${price.toFixed(2)}/h`}
+              />
+            );
+          });
+        })()}
       </div>
 
       <SectionLabel>Allocation type</SectionLabel>
@@ -531,9 +536,8 @@ const DeploySummary = ({ config, model, hw, canLaunch, onLaunch }) => {
   const D = window.DYNAMO || { tokpsGainPct: 35 };
   const primaryPop = (window.POP_BY_ID || {})[config.deployPops[0]] || { city: "Paris", country: "FR" };
   const sov = window.computeSovereignty ? window.computeSovereignty(sovCfg(config)) : { score: 0, level: null };
-  const perH = (config.hardware === "h100" ? 2.40 : config.hardware === "l40s" ? 1.95 : 1.60);
-  const totalPerH = perH * config.deployPops.length;
-  const carbon = window.gco2PerMtok ? window.gco2PerMtok(model.id, primaryPop.country, config.dynamo) : 77;
+  const totalPerH = window.deployHourly ? window.deployHourly(model.id, config.hardware, config.deployPops.length) : 2.40;
+  const carbon = window.deployCarbon ? window.deployCarbon(model.id, config.deployPops, config.dynamo) : 77;
   return (
     <div className="panel" style={{ position: "sticky", top: 80 }}>
       <div style={{ padding: 16, borderBottom: "1px solid var(--line)", background: "#000", color: "#fff" }}>
@@ -569,7 +573,7 @@ const DeploySummary = ({ config, model, hw, canLaunch, onLaunch }) => {
               <strong style={{ fontSize: 20 }}>€{totalPerH.toFixed(2)}</strong>
               <span className="faint" style={{ fontSize: 11 }}>/h active</span>
             </div>
-            <div className="faint" style={{ fontSize: 11 }}>€0/h scale-to-zero</div>
+            <div className="faint" style={{ fontSize: 11 }}>{config.scaling === "scale-to-zero" ? "€0/h idle · scale-to-zero" : `≈ €${(totalPerH * 24).toFixed(0)}/day · always on`}</div>
           </div>
           <div style={{ flex: 1 }}>
             <div className="faint" style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4, display: "inline-flex", alignItems: "center", gap: 4 }}><Icon name="leaf" size={11} style={{ color: "#1e8e1e" }} />Carbon</div>
@@ -577,7 +581,7 @@ const DeploySummary = ({ config, model, hw, canLaunch, onLaunch }) => {
               <strong style={{ fontSize: 20, color: "#1e8e1e" }}>{carbon}</strong>
               <span className="faint" style={{ fontSize: 11 }}>g/Mtok</span>
             </div>
-            <div className="faint" style={{ fontSize: 11 }}>{primaryPop.country} grid</div>
+            <div className="faint" style={{ fontSize: 11 }}>{config.deployPops.length > 1 ? `avg · ${config.deployPops.length} regions${config.dynamo ? " · Dynamo" : ""}` : `${primaryPop.country} grid${config.dynamo ? " · Dynamo" : ""}`}</div>
           </div>
         </div>
 

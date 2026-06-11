@@ -365,15 +365,11 @@ const DetailScreen = () => {
                 <span className="chip chip-outline">{m.task}</span>
                 <span className="chip chip-outline">{m.size}</span>
                 <span className="chip chip-outline">{m.license}</span>
-                <span className="chip chip-outline">{m.ctx}</span>
+                <span className="chip chip-outline">{hw.ctx} ctx</span>
                 <span className="chip chip-eu"><EUFlag size={10} />EU deployable</span>
                 <span className="chip chip-success"><span className="dot" />Bare metal compatible</span>
               </div>
             </div>
-            <button className="btn btn-primary" onClick={() => go("deploy")}>
-              Deploy to Gcore
-              <Icon name="arrow" size={14} />
-            </button>
           </div>
 
           {/* Tabs */}

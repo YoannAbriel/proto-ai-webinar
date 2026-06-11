@@ -97,6 +97,29 @@ const MODEL_HW = {
 const hwFor = (id) => MODEL_HW[id] || MODEL_HW["mistral-small-24b"];
 const hwLabelFull = (id) => { const h = hwFor(id); return `${h.count}× ${h.gpu} ${h.vram}GB`; };
 
+// ============ Realistic pricing & carbon, driven by the deploy settings ============
+// Per-GPU hourly rate by tier. The model's GPU count scales the bill; L40S needs
+// ~2× the cards to match the memory of the recommended tier.
+const PER_GPU_HOUR = { h100: 2.40, a100: 1.60, l40s: 1.20, l4: 0.45 };
+const tierMult = (tier) => (String(tier).toLowerCase() === "l40s" ? 2 : 1);
+// Hourly cost of one region serving `modelId` on the chosen hardware `tier`.
+function tierHourly(modelId, tier) {
+  const h = hwFor(modelId);
+  const t = String(tier || h.gpu).toLowerCase();
+  const perGpu = PER_GPU_HOUR[t] != null ? PER_GPU_HOUR[t] : PER_GPU_HOUR.h100;
+  return +(perGpu * (h.count || 1) * tierMult(t)).toFixed(2);
+}
+// Total active €/h across all deployed regions.
+function deployHourly(modelId, tier, regionCount) {
+  return +(tierHourly(modelId, tier) * Math.max(1, regionCount || 1)).toFixed(2);
+}
+// Average gCO2e / 1M tokens across the deployed regions (each region's grid).
+function deployCarbon(modelId, popIds, dynamoOn) {
+  const ids = (popIds && popIds.length) ? popIds : ["paris"];
+  const vals = ids.map(id => { const p = POP_BY_ID[id] || {}; return gco2PerMtok(modelId, p.country || "FR", dynamoOn); });
+  return Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
+}
+
 // ============ NVIDIA Dynamo (inference optimisation) ============
 const DYNAMO = {
   name: "NVIDIA Dynamo",
@@ -187,7 +210,7 @@ function sovLevel(score) {
 
 Object.assign(window, {
   CARBON_INTENSITY, ENERGY_MIX, DEPLOY_POPS, POP_BY_ID, GPU_RANK, popCanHost,
-  MODEL_HW, hwFor, hwLabelFull,
+  MODEL_HW, hwFor, hwLabelFull, PER_GPU_HOUR, tierHourly, deployHourly, deployCarbon,
   DYNAMO, energyPerMtokKwh, gco2PerMtok, carKmFor,
   computeSovereignty, sovLevel, SOV_CRITERIA,
 });
