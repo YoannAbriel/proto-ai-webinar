@@ -55,14 +55,43 @@ const popCanHost = (pop, modelId) => (GPU_RANK[pop.gpu] || 0) >= (GPU_RANK[(hwFo
 // Every catalogue model maps to a recommended GPU, cost, throughput and board power.
 // powerKw = sustained board power of the GPU set (used for the carbon estimate).
 const MODEL_HW = {
-  "mistral-small-24b": { gpu: "H100", count: 1, vram: 80, alt: "2× L40S 48GB", costPerH: 2.40, tokps: 142, unit: "tok/s", powerKw: 0.70, weightGb: 47,  ctx: "32k", precision: "bf16" },
-  "llama-3-8b":        { gpu: "L40S", count: 1, vram: 48, alt: "1× A100 40GB", costPerH: 1.20, tokps: 165, unit: "tok/s", powerKw: 0.35, weightGb: 16,  ctx: "8k",  precision: "bf16" },
-  "qwen-2-5-72b":      { gpu: "H100", count: 2, vram: 160, alt: "4× L40S 48GB", costPerH: 4.80, tokps: 88,  unit: "tok/s", powerKw: 1.40, weightGb: 145, ctx: "32k", precision: "bf16" },
-  "bge-m3":            { gpu: "L4",   count: 1, vram: 24, alt: "1× T4 16GB",   costPerH: 0.45, tokps: 12000, unit: "emb/s", powerKw: 0.072, weightGb: 2.2, ctx: "8k", precision: "fp16" },
+  // Mistral
+  "mistral-small-24b": { gpu: "H100", count: 1, vram: 80, alt: "2× L40S 48GB", costPerH: 2.40, tokps: 142, unit: "tok/s", powerKw: 0.70, weightGb: 47,  ctx: "32k",  precision: "bf16" },
+  "mistral-large-2411":{ gpu: "H100", count: 4, vram: 80, alt: "8× A100 80GB", costPerH: 9.60, tokps: 58,  unit: "tok/s", powerKw: 2.80, weightGb: 228, ctx: "128k", precision: "bf16" },
+  "mixtral-8x7b":      { gpu: "H100", count: 2, vram: 80, alt: "2× A100 80GB", costPerH: 4.80, tokps: 115, unit: "tok/s", powerKw: 1.40, weightGb: 87,  ctx: "32k",  precision: "bf16" },
+  "mistral-nemo":      { gpu: "A100", count: 1, vram: 80, alt: "2× L40S 48GB", costPerH: 1.60, tokps: 120, unit: "tok/s", powerKw: 0.40, weightGb: 24,  ctx: "128k", precision: "bf16" },
+  "codestral-22b":     { gpu: "A100", count: 1, vram: 80, alt: "1× H100 80GB", costPerH: 1.60, tokps: 105, unit: "tok/s", powerKw: 0.40, weightGb: 44,  ctx: "32k",  precision: "bf16" },
+  "mistral-7b":        { gpu: "L40S", count: 1, vram: 48, alt: "1× A100 40GB", costPerH: 1.20, tokps: 175, unit: "tok/s", powerKw: 0.35, weightGb: 14,  ctx: "32k",  precision: "bf16" },
+  "pixtral-12b":       { gpu: "A100", count: 1, vram: 80, alt: "1× H100 80GB", costPerH: 1.60, tokps: 90,  unit: "tok/s", powerKw: 0.40, weightGb: 25,  ctx: "128k", precision: "bf16" },
+  // Meta
+  "llama-3-3-70b":     { gpu: "H100", count: 2, vram: 80, alt: "4× L40S 48GB", costPerH: 4.80, tokps: 88,  unit: "tok/s", powerKw: 1.40, weightGb: 132, ctx: "128k", precision: "bf16" },
+  "llama-3-1-8b":      { gpu: "L40S", count: 1, vram: 48, alt: "1× A100 40GB", costPerH: 1.20, tokps: 168, unit: "tok/s", powerKw: 0.35, weightGb: 16,  ctx: "128k", precision: "bf16" },
+  "llama-3-8b":        { gpu: "L40S", count: 1, vram: 48, alt: "1× A100 40GB", costPerH: 1.20, tokps: 165, unit: "tok/s", powerKw: 0.35, weightGb: 16,  ctx: "8k",   precision: "bf16" },
+  "codellama-34b":     { gpu: "H100", count: 1, vram: 80, alt: "2× L40S 48GB", costPerH: 2.40, tokps: 120, unit: "tok/s", powerKw: 0.70, weightGb: 67,  ctx: "16k",  precision: "bf16" },
+  // Qwen
+  "qwen-2-5-72b":      { gpu: "H100", count: 2, vram: 80, alt: "4× L40S 48GB", costPerH: 4.80, tokps: 88,  unit: "tok/s", powerKw: 1.40, weightGb: 145, ctx: "128k", precision: "bf16" },
+  "qwen-2-5-7b":       { gpu: "L40S", count: 1, vram: 48, alt: "1× A100 40GB", costPerH: 1.20, tokps: 172, unit: "tok/s", powerKw: 0.35, weightGb: 15,  ctx: "128k", precision: "bf16" },
+  "qwen-2-5-coder-32b":{ gpu: "H100", count: 1, vram: 80, alt: "2× L40S 48GB", costPerH: 2.40, tokps: 112, unit: "tok/s", powerKw: 0.70, weightGb: 64,  ctx: "128k", precision: "bf16" },
+  "qwq-32b":           { gpu: "H100", count: 1, vram: 80, alt: "2× L40S 48GB", costPerH: 2.40, tokps: 110, unit: "tok/s", powerKw: 0.70, weightGb: 64,  ctx: "32k",  precision: "bf16" },
+  // DeepSeek
+  "deepseek-r1-distill":{ gpu: "H100", count: 1, vram: 80, alt: "2× L40S 48GB", costPerH: 2.40, tokps: 110, unit: "tok/s", powerKw: 0.70, weightGb: 64,  ctx: "128k", precision: "bf16" },
+  "deepseek-v3":       { gpu: "H100", count: 8, vram: 80, alt: "—",            costPerH: 19.20, tokps: 48, unit: "tok/s", powerKw: 5.60, weightGb: 685, ctx: "128k", precision: "fp8" },
+  "deepseek-coder-v2": { gpu: "H100", count: 8, vram: 80, alt: "—",            costPerH: 19.20, tokps: 65, unit: "tok/s", powerKw: 5.60, weightGb: 440, ctx: "128k", precision: "bf16" },
+  // Google
+  "gemma-2-27b":       { gpu: "H100", count: 1, vram: 80, alt: "2× L40S 48GB", costPerH: 2.40, tokps: 120, unit: "tok/s", powerKw: 0.70, weightGb: 54,  ctx: "8k",   precision: "bf16" },
+  "gemma-2-9b":        { gpu: "L40S", count: 1, vram: 48, alt: "1× A100 40GB", costPerH: 1.20, tokps: 150, unit: "tok/s", powerKw: 0.35, weightGb: 18,  ctx: "8k",   precision: "bf16" },
+  // Microsoft
+  "phi-4":             { gpu: "A100", count: 1, vram: 80, alt: "1× H100 80GB", costPerH: 1.60, tokps: 110, unit: "tok/s", powerKw: 0.40, weightGb: 29,  ctx: "16k",  precision: "bf16" },
   "phi-3-mini":        { gpu: "L4",   count: 1, vram: 24, alt: "1× A10 24GB",  costPerH: 0.45, tokps: 210, unit: "tok/s", powerKw: 0.072, weightGb: 7.6, ctx: "4k",  precision: "bf16" },
+  // NVIDIA / Databricks
+  "nemotron-70b":      { gpu: "H100", count: 2, vram: 80, alt: "4× L40S 48GB", costPerH: 4.80, tokps: 86,  unit: "tok/s", powerKw: 1.40, weightGb: 132, ctx: "128k", precision: "bf16" },
+  "dbrx":              { gpu: "H100", count: 4, vram: 80, alt: "8× A100 80GB", costPerH: 9.60, tokps: 72,  unit: "tok/s", powerKw: 2.80, weightGb: 245, ctx: "32k",  precision: "bf16" },
+  // Vision / Audio
+  "llava-next":        { gpu: "A100", count: 1, vram: 80, alt: "1× H100 80GB", costPerH: 1.60, tokps: 96,  unit: "tok/s", powerKw: 0.40, weightGb: 15,  ctx: "4k",   precision: "fp16" },
   "whisper-l3":        { gpu: "L40S", count: 1, vram: 48, alt: "1× A100 40GB", costPerH: 1.20, tokps: 32,  unit: "× realtime", powerKw: 0.35, weightGb: 3.1, ctx: "—", precision: "fp16" },
-  "llava-next":        { gpu: "A100", count: 1, vram: 80, alt: "1× H100 80GB", costPerH: 1.60, tokps: 96,  unit: "tok/s", powerKw: 0.40, weightGb: 15,  ctx: "4k",  precision: "fp16" },
-  "codellama-34b":     { gpu: "H100", count: 1, vram: 80, alt: "2× L40S 48GB", costPerH: 2.40, tokps: 120, unit: "tok/s", powerKw: 0.70, weightGb: 67,  ctx: "16k", precision: "bf16" },
+  // Embeddings
+  "bge-m3":            { gpu: "L4",   count: 1, vram: 24, alt: "1× T4 16GB",   costPerH: 0.45, tokps: 12000, unit: "emb/s", powerKw: 0.072, weightGb: 2.2, ctx: "8k", precision: "fp16" },
+  "bge-reranker":      { gpu: "L4",   count: 1, vram: 24, alt: "1× T4 16GB",   costPerH: 0.45, tokps: 9000,  unit: "emb/s", powerKw: 0.072, weightGb: 2.3, ctx: "8k", precision: "fp16" },
   "mxbai-embed":       { gpu: "L4",   count: 1, vram: 24, alt: "1× T4 16GB",   costPerH: 0.45, tokps: 18000, unit: "emb/s", powerKw: 0.072, weightGb: 1.3, ctx: "—", precision: "fp16" },
 };
 const hwFor = (id) => MODEL_HW[id] || MODEL_HW["mistral-small-24b"];

@@ -3,15 +3,43 @@ const { useState: useState1, useMemo: useMemo1 } = React;
 
 // ============ Model data ============
 const MODELS = [
-  { id: "mistral-small-24b", name: "Mistral-Small-3-24B-Instruct", org: "Mistral AI", orgColor: "#ff5f00", initial: "M", task: "Text generation", size: "24B", license: "Apache 2.0", downloads: "1.2M", likes: "8.4k", updated: "3 days ago", featured: true, ctx: "32k tokens", precision: "bf16", weight: "47 GB", euReady: true },
-  { id: "llama-3-8b",       name: "Meta-Llama-3-8B-Instruct",      org: "Meta",        orgColor: "#0866ff", initial: "M", task: "Text generation", size: "8B",  license: "Llama 3",   downloads: "4.8M", likes: "12.1k", updated: "1 week ago", euReady: true },
-  { id: "qwen-2-5-72b",     name: "Qwen2.5-72B-Instruct",          org: "Qwen / Alibaba", orgColor: "#9333ea", initial: "Q", task: "Text generation", size: "72B", license: "Qwen", downloads: "892k", likes: "5.1k", updated: "2 days ago" },
-  { id: "bge-m3",           name: "bge-m3",                         org: "BAAI",        orgColor: "#16a34a", initial: "B", task: "Embeddings",      size: "560M", license: "MIT",       downloads: "3.4M", likes: "2.8k", updated: "2 months ago", euReady: true },
-  { id: "phi-3-mini",       name: "Phi-3-mini-4k-instruct",         org: "Microsoft",   orgColor: "#0078d4", initial: "M", task: "Text generation", size: "3.8B", license: "MIT",      downloads: "2.1M", likes: "4.6k", updated: "1 month ago", euReady: true },
-  { id: "whisper-l3",       name: "whisper-large-v3",               org: "OpenAI",      orgColor: "#10a37f", initial: "O", task: "Audio",           size: "1.5B", license: "MIT",      downloads: "8.7M", likes: "9.8k", updated: "4 months ago", euReady: true },
-  { id: "llava-next",       name: "llava-v1.6-mistral-7b",          org: "LLaVA",       orgColor: "#dc2626", initial: "L", task: "Vision",          size: "7B",   license: "Apache 2.0", downloads: "412k", likes: "1.9k", updated: "2 weeks ago", euReady: true },
-  { id: "codellama-34b",    name: "CodeLlama-34b-Instruct-hf",      org: "Meta",        orgColor: "#0866ff", initial: "M", task: "Text generation", size: "34B",  license: "Llama 2",  downloads: "654k", likes: "3.2k", updated: "1 month ago" },
-  { id: "mxbai-embed",      name: "mxbai-embed-large-v1",           org: "mixedbread",  orgColor: "#ca8a04", initial: "m", task: "Embeddings",      size: "335M", license: "Apache 2.0", downloads: "987k", likes: "1.4k", updated: "3 weeks ago", euReady: true },
+  // ===== Mistral AI (demo flagship + family) =====
+  { id: "mistral-small-24b", name: "Mistral-Small-3-24B-Instruct", org: "Mistral AI", orgColor: "#ff5f00", initial: "M", task: "Text generation", size: "24B",  license: "Apache 2.0",     downloads: "1.2M", likes: "8.4k",  updated: "3 days ago",   featured: true, euReady: true },
+  { id: "mistral-large-2411",name: "Mistral-Large-2411",           org: "Mistral AI", orgColor: "#ff5f00", initial: "M", task: "Text generation", size: "123B", license: "MRL (research)", downloads: "640k", likes: "5.6k",  updated: "1 week ago",   euReady: true },
+  { id: "mixtral-8x7b",      name: "Mixtral-8x7B-Instruct-v0.1",   org: "Mistral AI", orgColor: "#ff5f00", initial: "M", task: "Text generation", size: "47B",  license: "Apache 2.0",     downloads: "2.3M", likes: "9.7k",  updated: "1 month ago",  euReady: true },
+  { id: "mistral-nemo",      name: "Mistral-Nemo-Instruct-2407",   org: "Mistral AI", orgColor: "#ff5f00", initial: "M", task: "Text generation", size: "12B",  license: "Apache 2.0",     downloads: "1.5M", likes: "4.2k",  updated: "2 weeks ago",  euReady: true },
+  { id: "codestral-22b",     name: "Codestral-22B-v0.1",           org: "Mistral AI", orgColor: "#ff5f00", initial: "M", task: "Code",            size: "22B",  license: "MNPL (non-prod)",downloads: "780k", likes: "3.9k",  updated: "1 month ago",  euReady: true },
+  { id: "mistral-7b",        name: "Mistral-7B-Instruct-v0.3",     org: "Mistral AI", orgColor: "#ff5f00", initial: "M", task: "Text generation", size: "7B",   license: "Apache 2.0",     downloads: "6.1M", likes: "14.2k", updated: "3 months ago", euReady: true },
+  { id: "pixtral-12b",       name: "Pixtral-12B-2409",             org: "Mistral AI", orgColor: "#ff5f00", initial: "M", task: "Vision",          size: "12B",  license: "Apache 2.0",     downloads: "410k", likes: "2.4k",  updated: "2 weeks ago",  euReady: true },
+  // ===== Meta =====
+  { id: "llama-3-3-70b",     name: "Llama-3.3-70B-Instruct",       org: "Meta",        orgColor: "#0866ff", initial: "M", task: "Text generation", size: "70B",  license: "Llama 3.3", downloads: "3.1M", likes: "11.5k", updated: "5 days ago",   euReady: true },
+  { id: "llama-3-1-8b",      name: "Llama-3.1-8B-Instruct",        org: "Meta",        orgColor: "#0866ff", initial: "M", task: "Text generation", size: "8B",   license: "Llama 3.1", downloads: "9.8M", likes: "13.4k", updated: "2 months ago", euReady: true },
+  { id: "codellama-34b",     name: "CodeLlama-34b-Instruct-hf",    org: "Meta",        orgColor: "#0866ff", initial: "M", task: "Code",            size: "34B",  license: "Llama 2",   downloads: "654k", likes: "3.2k",  updated: "1 month ago",  euReady: true },
+  // ===== Qwen / Alibaba =====
+  { id: "qwen-2-5-72b",      name: "Qwen2.5-72B-Instruct",         org: "Qwen / Alibaba", orgColor: "#9333ea", initial: "Q", task: "Text generation", size: "72B", license: "Qwen",       downloads: "892k", likes: "5.1k", updated: "2 days ago",  euReady: true },
+  { id: "qwen-2-5-7b",       name: "Qwen2.5-7B-Instruct",          org: "Qwen / Alibaba", orgColor: "#9333ea", initial: "Q", task: "Text generation", size: "7B",  license: "Apache 2.0", downloads: "3.7M", likes: "6.8k", updated: "1 week ago",  euReady: true },
+  { id: "qwen-2-5-coder-32b",name: "Qwen2.5-Coder-32B-Instruct",   org: "Qwen / Alibaba", orgColor: "#9333ea", initial: "Q", task: "Code",            size: "32B", license: "Apache 2.0", downloads: "1.1M", likes: "5.9k", updated: "3 weeks ago", euReady: true },
+  { id: "qwq-32b",           name: "QwQ-32B",                      org: "Qwen / Alibaba", orgColor: "#9333ea", initial: "Q", task: "Text generation", size: "32B", license: "Apache 2.0", downloads: "920k", likes: "7.3k", updated: "4 days ago",  euReady: true },
+  // ===== DeepSeek =====
+  { id: "deepseek-r1-distill",name: "DeepSeek-R1-Distill-Qwen-32B",org: "DeepSeek",    orgColor: "#4d6bfe", initial: "D", task: "Text generation", size: "32B",  license: "MIT",       downloads: "2.4M", likes: "8.1k",  updated: "5 days ago",   euReady: true },
+  { id: "deepseek-v3",       name: "DeepSeek-V3",                  org: "DeepSeek",    orgColor: "#4d6bfe", initial: "D", task: "Text generation", size: "671B", license: "DeepSeek",  downloads: "1.8M", likes: "12.9k", updated: "1 week ago",   euReady: true },
+  { id: "deepseek-coder-v2", name: "DeepSeek-Coder-V2-Instruct",   org: "DeepSeek",    orgColor: "#4d6bfe", initial: "D", task: "Code",            size: "236B", license: "DeepSeek",  downloads: "740k", likes: "4.5k",  updated: "1 month ago",  euReady: true },
+  // ===== Google (Gemma) =====
+  { id: "gemma-2-27b",       name: "gemma-2-27b-it",               org: "Google",      orgColor: "#4285f4", initial: "G", task: "Text generation", size: "27B",  license: "Gemma",     downloads: "1.3M", likes: "5.7k",  updated: "2 weeks ago",  euReady: true },
+  { id: "gemma-2-9b",        name: "gemma-2-9b-it",                org: "Google",      orgColor: "#4285f4", initial: "G", task: "Text generation", size: "9B",   license: "Gemma",     downloads: "2.9M", likes: "6.2k",  updated: "2 weeks ago",  euReady: true },
+  // ===== Microsoft =====
+  { id: "phi-4",             name: "phi-4",                        org: "Microsoft",   orgColor: "#0078d4", initial: "M", task: "Text generation", size: "14B",  license: "MIT",       downloads: "1.6M", likes: "5.4k",  updated: "6 days ago",   euReady: true },
+  { id: "phi-3-mini",        name: "Phi-3-mini-4k-instruct",       org: "Microsoft",   orgColor: "#0078d4", initial: "M", task: "Text generation", size: "3.8B", license: "MIT",       downloads: "2.1M", likes: "4.6k",  updated: "1 month ago",  euReady: true },
+  // ===== NVIDIA / Databricks =====
+  { id: "nemotron-70b",      name: "Llama-3.1-Nemotron-70B-Instruct", org: "NVIDIA",   orgColor: "#76b900", initial: "N", task: "Text generation", size: "70B",  license: "Llama 3.1", downloads: "680k", likes: "3.8k",  updated: "1 month ago",  euReady: true },
+  { id: "dbrx",              name: "dbrx-instruct",                org: "Databricks",  orgColor: "#ff3621", initial: "D", task: "Text generation", size: "132B", license: "Databricks Open", downloads: "320k", likes: "2.7k", updated: "2 months ago", euReady: true },
+  // ===== Vision / Audio =====
+  { id: "llava-next",        name: "llava-v1.6-mistral-7b",        org: "LLaVA",       orgColor: "#dc2626", initial: "L", task: "Vision",          size: "7B",   license: "Apache 2.0", downloads: "412k", likes: "1.9k", updated: "2 weeks ago", euReady: true },
+  { id: "whisper-l3",        name: "whisper-large-v3",             org: "OpenAI",      orgColor: "#10a37f", initial: "O", task: "Audio",           size: "1.5B", license: "MIT",        downloads: "8.7M", likes: "9.8k", updated: "4 months ago", euReady: true },
+  // ===== Embeddings / rerankers =====
+  { id: "bge-m3",            name: "bge-m3",                       org: "BAAI",        orgColor: "#16a34a", initial: "B", task: "Embeddings",      size: "560M", license: "MIT",        downloads: "3.4M", likes: "2.8k", updated: "2 months ago", euReady: true },
+  { id: "bge-reranker",      name: "bge-reranker-v2-m3",           org: "BAAI",        orgColor: "#16a34a", initial: "B", task: "Embeddings",      size: "568M", license: "Apache 2.0", downloads: "1.7M", likes: "1.6k", updated: "3 months ago", euReady: true },
+  { id: "mxbai-embed",       name: "mxbai-embed-large-v1",         org: "mixedbread",  orgColor: "#ca8a04", initial: "m", task: "Embeddings",      size: "335M", license: "Apache 2.0", downloads: "987k", likes: "1.4k", updated: "3 weeks ago", euReady: true },
 ];
 
 // Parse a HuggingFace-style size string ("560M", "24B") into billions of params.
@@ -23,16 +51,16 @@ const sizeToB = (s) => {
 const modelCarbonFR = (id) => (window.gco2PerMtok ? window.gco2PerMtok(id, "FR") : 0);
 
 const RECOMMENDED = [
-  { id: "mistral-small-24b", name: "Mistral-Small-3-24B", org: "Mistral AI", note: "Sovereign · Native French" },
-  { id: "bge-m3",            name: "bge-m3 (Embeddings)",  org: "BAAI",       note: "Multilingual RAG" },
-  { id: "phi-3-mini",        name: "Phi-3-mini",           org: "Microsoft",  note: "Edge · 3.8B compact" },
-  { id: "llava-next",        name: "llava-v1.6-mistral",   org: "LLaVA",      note: "Vision · OCR documents" },
+  { id: "mistral-small-24b",  name: "Mistral-Small-3-24B",   org: "Mistral AI",     note: "Sovereign · native French" },
+  { id: "deepseek-r1-distill",name: "DeepSeek-R1-Distill-32B",org: "DeepSeek",       note: "Reasoning · MIT" },
+  { id: "qwen-2-5-coder-32b", name: "Qwen2.5-Coder-32B",     org: "Qwen / Alibaba", note: "Code · Apache 2.0" },
+  { id: "bge-m3",             name: "bge-m3 (Embeddings)",   org: "BAAI",           note: "Multilingual RAG" },
 ];
 
 // ============ Screen 1: Catalogue ============
 const SIZE_OPTIONS = { "Any size": Infinity, "≤ 8B": 8, "≤ 34B": 34, "≤ 70B": 70 };
 const LICENSE_OPTIONS = ["All licenses", "Open source", "Commercial"];
-const TASK_OPTIONS = ["All tasks", "Text generation", "Embeddings", "Vision", "Audio"];
+const TASK_OPTIONS = ["All tasks", "Text generation", "Code", "Vision", "Embeddings", "Audio"];
 // Open-source = OSI licenses (Apache/MIT/BSD); the rest (Llama, Qwen…) are
 // custom/community licenses, grouped as "Commercial".
 const isOpenSourceLicense = (lic) => /apache|mit|bsd/i.test(lic || "");
