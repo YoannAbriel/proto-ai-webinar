@@ -453,7 +453,8 @@ const DetailLicense = () => (
       </div>
       <div style={{ padding: 24 }}>
         <div className="grid-2" style={{ gap: 24 }}>
-          <ComplianceItem name="AI Act compliance" status="ok" detail="No high-risk traits triggered (Annex IIIa). General-purpose AI model — Article 28 transparency obligations met by Mistral AI." />
+          <ComplianceItem name="Original weights verified" status="ok" detail="SHA-256 of every shard matches Mistral AI's published weights. Served unmodified: no re-quantisation, fine-tune or distillation. Integrity re-checked on each pull and signed in the tenant audit log." />
+          <ComplianceItem name="AI Act compliance" status="ok" detail="No high-risk traits triggered (Annex IIIa). General-purpose AI model, Article 28 transparency obligations met by Mistral AI." />
           <ComplianceItem name="GDPR (Article 9)" status="ok" detail="Training data audited for personal & sensitive data exclusion. No memorisation tests above threshold." />
           <ComplianceItem name="Copyright training data" status="ok" detail="Mistral AI's training data audit available under NDA. Major opt-out lists (CC, ai.txt, robots.txt) respected." />
           <ComplianceItem name="Export control (EU dual-use)" status="ok" detail="Below 10^25 FLOP threshold. No export restriction applies." />

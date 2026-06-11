@@ -31,8 +31,11 @@ const RECOMMENDED = [
 
 // ============ Screen 1: Catalogue ============
 const SIZE_OPTIONS = { "Any size": Infinity, "≤ 8B": 8, "≤ 34B": 34, "≤ 70B": 70 };
-const LICENSE_OPTIONS = ["All licenses", "Apache 2.0", "MIT", "Llama", "Qwen"];
+const LICENSE_OPTIONS = ["All licenses", "Open source", "Commercial"];
 const TASK_OPTIONS = ["All tasks", "Text generation", "Embeddings", "Vision", "Audio"];
+// Open-source = OSI licenses (Apache/MIT/BSD); the rest (Llama, Qwen…) are
+// custom/community licenses, grouped as "Commercial".
+const isOpenSourceLicense = (lic) => /apache|mit|bsd/i.test(lic || "");
 
 const CatalogueScreen = () => {
   const { openModel } = useNav();
@@ -40,8 +43,7 @@ const CatalogueScreen = () => {
     task: "All tasks",
     license: "All licenses",
     size: "Any size",
-    bareMetalOnly: true,
-    euOptimized: false,
+    privateGpu: true,
     lowCarbon: false,
   });
   const [search, setSearch] = useState1("");
@@ -53,9 +55,9 @@ const CatalogueScreen = () => {
     return MODELS.filter(m => {
       if (q && !(`${m.name} ${m.org} ${m.task}`.toLowerCase().includes(q))) return false;
       if (filters.task !== "All tasks" && m.task !== filters.task) return false;
-      if (filters.license !== "All licenses" && !m.license.toLowerCase().startsWith(filters.license.toLowerCase())) return false;
+      if (filters.license === "Open source" && !isOpenSourceLicense(m.license)) return false;
+      if (filters.license === "Commercial" && isOpenSourceLicense(m.license)) return false;
       if (sizeToB(m.size) > sizeCap) return false;
-      if (filters.euOptimized && !m.euReady) return false;
       if (filters.lowCarbon && modelCarbonFR(m.id) > 150) return false;
       return true;
     });
@@ -103,8 +105,7 @@ const CatalogueScreen = () => {
             <FilterChip label="Task" value={filters.task} options={TASK_OPTIONS} onChange={v => setFilters(f => ({ ...f, task: v }))} />
             <FilterChip label="Size" value={filters.size} options={Object.keys(SIZE_OPTIONS)} onChange={v => setFilters(f => ({ ...f, size: v }))} />
             <FilterChip label="License" value={filters.license} options={LICENSE_OPTIONS} onChange={v => setFilters(f => ({ ...f, license: v }))} />
-            <ToggleChip label="Bare metal Gcore compatible" on={filters.bareMetalOnly} onClick={() => setFilters(f => ({ ...f, bareMetalOnly: !f.bareMetalOnly }))} />
-            <ToggleChip label="EU-optimised" on={filters.euOptimized} onClick={() => setFilters(f => ({ ...f, euOptimized: !f.euOptimized }))} />
+            <ToggleChip label="Private GPUs" on={filters.privateGpu} onClick={() => setFilters(f => ({ ...f, privateGpu: !f.privateGpu }))} />
             <ToggleChip label="Low carbon" icon="leaf" on={filters.lowCarbon} onClick={() => setFilters(f => ({ ...f, lowCarbon: !f.lowCarbon }))} />
             <span style={{ marginLeft: "auto", fontSize: 12, color: "var(--ink-faint)" }}>
               <strong style={{ color: "#000" }}>{filtered.length}</strong> of {MODELS.length} models
@@ -118,20 +119,37 @@ const CatalogueScreen = () => {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 14 }}>
           {filtered.length === 0 && (
             <div className="panel" style={{ padding: 32, textAlign: "center", color: "var(--ink-faint)", gridColumn: "1 / -1" }}>
-              No model matches these filters. <button onClick={() => { setSearch(""); setFilters({ task: "All tasks", license: "All licenses", size: "Any size", bareMetalOnly: true, euOptimized: false, lowCarbon: false }); }} style={{ background: "none", border: 0, color: "var(--orange)", fontWeight: 700, cursor: "pointer", fontFamily: "inherit", fontSize: 13 }}>Reset filters</button>
+              No model matches these filters. <button onClick={() => { setSearch(""); setFilters({ task: "All tasks", license: "All licenses", size: "Any size", privateGpu: true, lowCarbon: false }); }} style={{ background: "none", border: 0, color: "var(--orange)", fontWeight: 700, cursor: "pointer", fontFamily: "inherit", fontSize: 13 }}>Reset filters</button>
             </div>
           )}
           {filtered.map(m => <ModelCard key={m.id} m={m} onOpen={() => openModel(m.id)} />)}
         </div>
 
-        {/* Recommended */}
         <div style={{ position: "sticky", top: 200, display: "flex", flexDirection: "column", gap: 14 }}>
+          {/* Sovereignty index — kept prominent at the top of the rail */}
+          <div className="panel" style={{ padding: 18 }}>
+            <div className="kicker" style={{ color: "var(--ink-faint)", display: "flex", alignItems: "center", gap: 6 }}>
+              <Icon name="gauge" size={13} className="" style={{ color: "var(--orange)" }} />
+              Sovereignty index
+            </div>
+            <div style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.02em", margin: "4px 0" }}>
+              {sovScore}<span style={{ fontSize: 14, color: "var(--ink-faint)" }}>/100</span>
+            </div>
+            <div style={{ height: 6, background: "var(--color-grey-200)", marginBottom: 8 }}>
+              <div style={{ width: `${sovScore}%`, height: "100%", background: "var(--orange)", transition: "width var(--dur-base)" }} />
+            </div>
+            <div style={{ fontSize: 12, color: "var(--ink-soft)" }}>
+              {filtered.length} model{filtered.length === 1 ? "" : "s"} deployable on Gcore EU bare metal · keys in EU HSM, outside the US Cloud Act.
+            </div>
+          </div>
+
+          {/* Recommended */}
           <div className="panel">
             <div style={{ padding: "16px 20px", background: "#000", color: "#fff", display: "flex", alignItems: "center", gap: 10 }}>
               <Icon name="spark" size={16} />
               <div>
                 <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--orange)" }}>Recommended</div>
-                <div style={{ fontSize: 13, fontWeight: 700 }}>for Orange Business</div>
+                <div style={{ fontSize: 13, fontWeight: 700 }}>by Orange Business</div>
               </div>
             </div>
             <div>
@@ -150,22 +168,6 @@ const CatalogueScreen = () => {
                   <Icon name="chevron" size={14} className="muted" />
                 </div>
               ))}
-            </div>
-          </div>
-
-          <div className="panel" style={{ padding: 18 }}>
-            <div className="kicker" style={{ color: "var(--ink-faint)", display: "flex", alignItems: "center", gap: 6 }}>
-              <Icon name="gauge" size={13} className="" style={{ color: "var(--orange)" }} />
-              Sovereignty index
-            </div>
-            <div style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.02em", margin: "4px 0" }}>
-              {sovScore}<span style={{ fontSize: 14, color: "var(--ink-faint)" }}>/100</span>
-            </div>
-            <div style={{ height: 6, background: "var(--color-grey-200)", marginBottom: 8 }}>
-              <div style={{ width: `${sovScore}%`, height: "100%", background: "var(--orange)", transition: "width var(--dur-base)" }} />
-            </div>
-            <div style={{ fontSize: 12, color: "var(--ink-soft)" }}>
-              {filtered.length} model{filtered.length === 1 ? "" : "s"} deployable on Gcore EU bare metal · keys in EU HSM, outside the US Cloud Act.
             </div>
           </div>
         </div>
